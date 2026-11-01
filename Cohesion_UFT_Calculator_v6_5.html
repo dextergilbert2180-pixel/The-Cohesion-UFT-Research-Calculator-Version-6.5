@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cohesion UFT Research Calculator — Version 6.5</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--navy:#1a3a5c;--gold:#b8860b;--bg:#f7f6f3;--card:#ffffff;--line:#d8d4cc;--ink:#22252a;--dim:#6b6f76;--ok:#1e7a3c;--open:#a05a00;}
+*{box-sizing:border-box;}
+body{margin:0;font-family:Georgia,'Times New Roman',serif;background:var(--bg);color:var(--ink);line-height:1.55;}
+header{background:var(--navy);color:#fff;padding:26px 22px 20px;}
+header h1{margin:0;font-size:1.55em;font-weight:normal;letter-spacing:0.4px;}
+header p{margin:7px 0 0;color:#c9d4e0;font-size:0.95em;max-width:900px;}
+nav{position:sticky;top:0;z-index:10;background:#12293f;padding:8px 14px;display:flex;flex-wrap:wrap;gap:4px;}
+nav a{color:#c9d4e0;text-decoration:none;font-size:0.78em;padding:4px 9px;border-radius:4px;font-family:Arial,sans-serif;}
+nav a:hover{background:#1a3a5c;color:#fff;}
+main{max-width:960px;margin:0 auto;padding:10px 18px 60px;}
+section{margin-top:34px;}
+.panel-head h2{font-size:1.25em;color:var(--navy);margin:0 0 4px;border-bottom:2px solid var(--gold);padding-bottom:5px;}
+.panel-head p{margin:6px 0 0;color:var(--dim);font-size:0.93em;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+.card-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.card-title{font-weight:bold;color:var(--navy);font-size:1.0em;}
+.badge{font-family:Arial,sans-serif;font-size:0.68em;letter-spacing:0.06em;padding:3px 9px;border-radius:10px;color:#fff;}
+.b-derived{background:var(--ok);}
+.b-open{background:var(--open);}
+.b-anchor{background:#5a5f66;}
+.b-new{background:var(--gold);}
+.b-closure{background:#3b6e8f;}
+.b-ident{background:#6d5a8e;}
+.row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap;}
+.row label{min-width:230px;font-size:0.9em;}
+.row input[type=range]{flex:1;min-width:160px;}
+.row input[type=number]{width:130px;padding:5px 7px;border:1px solid #aaa;border-radius:4px;font-size:0.95em;}
+.row select{padding:5px 7px;border:1px solid #aaa;border-radius:4px;font-size:0.9em;}
+.readout{font-family:'Courier New',monospace;font-size:0.9em;min-width:80px;color:var(--navy);}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:9px;margin-top:12px;}
+.m{background:#f2f0ea;border-radius:6px;padding:9px 12px;}
+.m .lbl{font-size:0.74em;color:var(--dim);font-family:Arial,sans-serif;letter-spacing:0.03em;}
+.m .val{font-family:'Courier New',monospace;font-size:1.05em;color:var(--navy);margin:2px 0;}
+.m .sub{font-size:0.76em;color:var(--dim);}
+.m.st-ok .val{color:var(--ok);}
+.m.st-info .val{color:var(--gold);}
+.eq{font-family:'Courier New',monospace;background:#eef2f6;border-left:3px solid var(--navy);padding:8px 12px;margin-top:12px;font-size:0.85em;overflow-x:auto;}
+.note{font-size:0.83em;color:var(--dim);margin-top:10px;}
+.chartbox{height:250px;margin-top:14px;}
+table.t{width:100%;border-collapse:collapse;margin-top:12px;font-size:0.87em;}
+table.t th{background:var(--navy);color:#fff;padding:6px 9px;text-align:left;font-weight:normal;font-family:Arial,sans-serif;font-size:0.85em;}
+table.t td{border-bottom:1px solid var(--line);padding:6px 9px;font-family:'Courier New',monospace;font-size:0.95em;}
+.op{border-left:4px solid var(--gold);background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:6px;padding:12px 15px;margin-top:12px;}
+.op h4{margin:0 0 4px;color:var(--navy);font-size:0.97em;display:inline-block;}
+.op .badge{float:right;}
+.op p{margin:6px 0 0;font-size:0.87em;color:#3a3e44;}
+footer{text-align:center;color:var(--dim);font-size:0.8em;padding:26px 0 40px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Cohesion UFT Research Calculator</h1>
+  <p>Version 6.5 — the complete derived-module set, with every module's standing aligned with the textbook (derived, closure, identified, stated, open), the recursion unit identified in seconds on Module 3, and the sixth problem of the series reposed on Module 15 (see Module 0). Every module computes live from the closed-form expressions of the Cohesion UFT series; each states its source paper and its standing, and every displayed value has been verified against its source. Dexter Alan Gilbert, Independent Researcher, 2026.</p>
+</header>
+<nav>
+  <a href="#chg">6.5 changes</a><a href="#mond">Surplus / MOND</a><a href="#rdst">R(D_st)</a><a href="#fsc">Fine-structure</a><a href="#mass">Lepton masses</a><a href="#tog">Binary toggle</a><a href="#wein">Weinberg angle</a><a href="#ew">Electroweak</a><a href="#run">Running couplings</a><a href="#gut">GUT convergence</a><a href="#pdk">Proton decay</a><a href="#nu">Neutrinos</a><a href="#rar">Rotation curves</a><a href="#epr">E = pr</a><a href="#units">Units</a><a href="#cls">Closure count</a><a href="#tgt">Unification targets</a><a href="#per">Perihelion</a><a href="#opn">Open programme</a><a href="#ref">Reference</a>
+</nav>
+<main>
+
+<!-- ============ 0. VERSION 6.5 CHANGES ============ -->
+<section id="chg">
+  <div class="panel-head"><h2>0 · What changed in Version 6.5</h2>
+  <p>No number of the record changes. Version 6.5 does two things. It closes the recursion unit on Module 3, which Version 6.4 printed as open between two readings in seconds, at the standing identified; and it reposes the sixth problem on Module 15, the switching energy of a torsion-phase bit, at the lattice scale, withdrawing the free-electron bound the c-bit paper stated. The textbook is cited at its fourth version, which carries both.</p></div>
+  <div class="card">
+    <div class="note"><b>The recursion unit closed.</b> Module 3's forward card printed the unit in seconds as two readings, 2/ω_C = 2.6 × 10⁻²¹ s and 2/(gω_C) = 6.2 × 10⁻¹⁹ s, marked open between them. The series' note <i>The Recursion Unit</i> identifies the unit from two closures the record already held: the electron closure of E = pr fixes the recursion length at λ_C with unit coefficient, the trapping condition fixes the rest energy at ℏω_C, and the medium's rate c joins them, since a rotation of radius λ_C at ω_C has boundary speed c. The unit is the radian time of that rotation, u_e = λ_C/c = ℏ/(m_ec²) = 1.2881 × 10⁻²¹ s. The two readings were two counts of this one unit, the first the superseded 2/ω form of the cadence and the second the 2/g count the calculator uses, so the card now prints the unit once, identified, and the cadence of the fine-structure chain in seconds: t_coh = 478.75 u_e = 6.167 × 10⁻¹⁹ s, ν_r = 1.622 × 10¹⁸ s⁻¹, a_r = 1.052 × 10³⁷ rad/s². The card also prints the slip energy of the toggle's form at the electron's rate, 2ℏg·ω_C = 2g·m_ec² = 4.27 keV, as what it is: the release of the free recursion's own gear-shift, with no measurement attached, and not the switching energy of a device.</div>
+    <div class="note"><b>Problem 6 reposed.</b> The sixth problem was posed as the torsion-interval energy fraction, E_switch = f·m_ec², on the c-bit paper's bound that the switching energy of a torsion-phase bit is a fraction of the electron's rest energy standing orders above the thermal floor. The measurement that bound has to be held against exists and is against it: the c-bit paper reads the torsion phase as the orientation of the local moment, so its NOT is a spin flip, and the spin flip of a single free electron in a Penning trap at 5.4 T is measured at its Larmor frequency, about 150 GHz, 0.6 meV per flip, falling with the field toward nothing; paramagnetism is the same fact at room temperature. There is no free-electron floor. What makes a magnetic bit thermally stable is the lattice's lock, the exchange coupling between neighbouring recursions, of order 0.01 to 1 eV per spin and 90 meV at iron's Curie point, a quantity of the lattice scale; the calculator's own form, 2ℏg at the scale whose slope is g, says the same. The card now poses one problem: the torsion slope at the lattice scale, with the lattice's coupling in place of 3α/2, against the exchange energy per spin of a ferromagnet, with the Zeeman flip μ_B·B as the free-electron limit a derivation must return. The textbook's fourth version records the withdrawal in Section 22.4 and Appendices C and D.</div>
+    <div class="note"><b>Notes.</b> Module 16 carries the unit, the cadence in seconds and the slip energy as rows, and its cadence row no longer reads open. Module 19 cites the perihelion paper at its second version, which carries the corrected Mercury figure and the Venus and Earth values the module returns. The textbook is cited at its fourth version throughout; its concept DOI resolves to it. Module numbers cited in the textbook's Appendix A are unchanged, and every value of Version 6.4 is reproduced.</div>
+  </div>
+</section>
+
+<!-- ============ 1. SURPLUS ACCELERATION / MOND ============ -->
+<section id="mond">
+  <div class="panel-head"><h2>1 · Surplus acceleration and the MOND scale — closure</h2>
+  <p>The exact surplus acceleration from the geodesic equation in the recursion metric with the exact R(D_st) solution. Setting g_surplus = a₀ has a unique solution R_trans, and evaluating there returns a₀ to rounding. Because R_trans is fixed by a₀ itself, a₀ is a closure; the derived content is the scale cH₀/6 and the location of the transition, R_trans and D_trans/D_GUT (textbook Ch. 16).</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">g_surplus = cH₀R(1 + 2R⁴)/6</span><span class="badge b-closure">CLOSURE</span></div>
+    <div class="row"><label>H₀ (km/s/Mpc)</label><input id="mond-h0" type="range" min="60" max="80" step="0.1" value="70" oninput="calcMond()"><span class="readout" id="mond-h0-v">70.0</span></div>
+    <div class="row"><label>R (evaluate g_surplus here)</label><input id="mond-r" type="range" min="0.05" max="1.0" step="0.001" value="0.748" oninput="calcMond()"><span class="readout" id="mond-r-v">0.748</span></div>
+    <div class="mgrid" id="mond-out"></div>
+    <div class="eq">g_surplus = cH₀R(1+2R⁴)/6 &nbsp;|&nbsp; R_trans solves R(1+2R⁴) = 6a₀/(cH₀) &nbsp;|&nbsp; D_trans/D_GUT = [3^(1/4)·R_trans/(1+2R_trans⁴)^(1/4)]⁶ = 0.439</div>
+    <div class="note">Sources: The Exact Solution for R(D_st) from the Classical Recursion Field; Identifying Dgal from the MOND Transition. Observed a₀ = 1.380×10⁻¹⁰ m/s². The transition condition uses the full exact equation of state — the factor (1+2R⁴) replaces the simple R of the approximate formula. At R_trans the propagation speed is c_eff = c/R_trans ≈ 1.34c. D_trans/D_GUT = 0.439 follows from a₀, c, and H₀ with no free parameters: the transition sits at 44% of the GUT density in D_st units, as any R below 1 requires. Version 6.1 corrected the 16.79 printed in the Dgal paper and in earlier editions. Standing: a derivation of a₀ itself would need R_trans fixed by a condition of the galactic recursion independent of a₀; the series has not stated one (textbook Appendix C).</div>
+  </div>
+</section>
+
+<!-- ============ 2. R(Dst) EXACT SOLUTION ============ -->
+<section id="rdst">
+  <div class="panel-head"><h2>2 · The propagation function R(D_st) — exact solution</h2>
+  <p>The central quantitative object of the framework, derived in closed form from the classical recursion Lagrangian. What remains is the absolute calibration of D_GUT in physical units, the sector's one measurement, and, before it on the cosmological route, the identification of the density and containing pressure that enter D_st at the largest scale, which is Problem 1 of the series' problem paper (the epoch card below).</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">R/(1+2R⁴)^(1/4) = C·D_st^(1/6)</span><span class="badge b-derived">DERIVED</span></div>
+    <div class="row"><label>log₁₀(D_st/D_GUT)</label><input id="rd-logd" type="range" min="-8" max="0" step="0.05" value="-4" oninput="calcRdst()"><span class="readout" id="rd-logd-v">−4.00</span></div>
+    <div class="mgrid" id="rd-out"></div>
+    <div class="chartbox"><canvas id="rd-chart"></canvas></div>
+    <div class="eq">R/(1+2R⁴)^(1/4) = C·D_st^(1/6) &nbsp;|&nbsp; C = 3^(−1/4) fixed by R(D_GUT)=1 &nbsp;|&nbsp; n = 1/6 exact &nbsp;|&nbsp; w = (1−2R⁴)/(1+2R⁴)</div>
+    <div class="note">Source: The Exact Solution for R(D_st) from the Classical Recursion Field. No free parameters. R → 0 as D_st → 0 (c_eff → ∞: inflation is the D_st → 0 limit); the finite observed R₀ is set by the minimum density of the recursion medium (asymptote theorem). Verification values from the paper: R = 0.0353 at 10⁻⁸, 0.1638 at 10⁻⁴ (electroweak), 0.3555 at 10⁻² (QCD), 1.0000 at D_GUT; w → −1/3 at the GUT scale. Domain bound: the solution exists for D_st/D_GUT &lt; (3/2)^(3/2) = 1.84 (textbook Ch. 14), derived.</div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">The epoch card — one expansion read at two densities</span><span class="badge b-open">IDENTIFICATION OPEN · TARGET</span></div>
+    <div class="row"><label>Redshift of recombination z</label><input id="ep2-z" type="number" step="1" value="1100" oninput="calcEpoch()"></div>
+    <div class="row"><label>Measured H_local/H_CMB</label><input id="ep2-h" type="number" step="0.001" value="1.083" oninput="calcEpoch()"></div>
+    <div class="row"><label>Its uncertainty (±)</label><input id="ep2-dh" type="number" step="0.001" value="0.017" oninput="calcEpoch()"></div>
+    <div class="mgrid" id="ep2-out"></div>
+    <div class="eq">power-law regime: R ≈ 3^(−1/4)(D_st/D_GUT)^(1/6), so R(D_now)/R(D_CMB) = (D_now/D_CMB)^(1/6) with no absolute calibration &nbsp;|&nbsp; measured ratio h ⟹ D_now/D_CMB = h⁶ &nbsp;|&nbsp; p_cont factor = (1+z)³ · h⁶</div>
+    <div class="note">Sources: The Exact Solution for R(D_st); the textbook Ch. 17 and Appendix C.1; Problems for Derivation, Problem 1. With D_st read as the mean matter density over a fixed containing pressure, the exact solution returns 1/33.2 against the measured 1.083: the structural density that enters the cosmological route is not that, exactly as the galactic route found the containing pressure of a galaxy is not simply the cosmological density. The measured ratio is returned only when D_now/D_CMB = 1.614, independent of the absolute calibration as long as both epochs lie below about 10⁻¹² D_GUT; the containing pressure of the domain must then have fallen by 2.15 × 10⁹ while the matter density fell by 1.33 × 10⁹. Standing: the ratio statement is derived from the exact solution; the identification of the density and containing pressure at the largest scale is open, and 1.614 is the target a derivation must return, not an input to one.</div>
+  </div>
+</section>
+
+<!-- ============ 3. FINE-STRUCTURE CONSTANT ============ -->
+<section id="fsc">
+  <div class="panel-head"><h2>3 · The fine-structure constant</h2>
+  <p>The forward geometric chain from the pressure axiom, and the slip-time self-consistency check. The golden angle is the infinite-time attractor; 1/α is the finite-time attractor; the slip operator is the gap.</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Forward chain: transcendental equation, no free parameters</span><span class="badge b-derived">DERIVED</span></div>
+    <div class="mgrid" id="fsc-fwd-out"></div>
+    <div class="eq">1/α = 360/φ² − ∆θ &nbsp;|&nbsp; ∆θ = 2g·(180/π) &nbsp;|&nbsp; g = 6κ₆Ī^(3/2) &nbsp;|&nbsp; Ī = 3α/2 &nbsp;|&nbsp; C = (S_e/S_γ)²·π²·κ₆ = 3/2 &nbsp;|&nbsp; κ₆ = 6/π²</div>
+    <div class="note">Sources: The Fine-Structure Constant from the Cohesion UFT: A Complete Derivation; The Photon-Electron Coupling Derivation. Solved by fixed-point iteration with no α as input to the geometric chain. The +0.007 between the geometric prediction and CODATA is identified, not fitted: viewed from inside the cascade it is the axial t²/2 kinematic term in the pair-production spectral density; viewed from outside it is the pressure signature of the containing scale at cascade level k = −1 (The Fine-Structure Constant Is the Coupling Between Scales). The per-peak slip structure ∆θ(θ_k) = (1/6)·2g/ω is derived in Hexagonal Recursion and the Six-Peak Slip Structure. The recursion unit in seconds, λ_C/c, is identified in The Recursion Unit: Seconds at the Electron Scale and carried by the textbook's fourth version (Section 7.4); the unit is the one quantity on this card at the standing identified rather than derived, and it becomes derived when the electron mass is derived from the axiom.</div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Self-consistency check — slip-time form</span><span class="badge b-anchor">CHECK</span></div>
+    <div class="row"><label>g/ω (radians)</label><input id="fsc-gw" type="number" step="0.000001" value="0.004117" oninput="calcFscCheck()"></div>
+    <div class="mgrid" id="fsc-chk-out"></div>
+    <div class="note">Sources: The Fine-Structure Constant and the Golden Angle, V5; Slip Acceleration (the formalisation of this card: t_coh = 2/g, τ(t_coh) = 2 rad exact, slip as the push into the next coherence interval). The value g/ω = 0.004117 rad was determined by working backward from CODATA; its forward evaluation from the field equations through the per-peak quantities (R₀/R_f, T_c, δT) is the stated open problem of that chain. The forward card above is the derived result; this card verifies the slip-time identity numerically.</div>
+  </div>
+</section>
+
+<!-- ============ 4. LEPTON MASS SPECTRUM ============ -->
+<section id="mass">
+  <div class="panel-head"><h2>4 · Lepton mass spectrum — torsion interval scaling</h2>
+  <p>The muon and tau masses follow from the electron anchor through the torsion interval scaling factors. The derived factors are λ₁ = 3/(2α) and λ₂ = 3/(8πα); their ratio λ₁/λ₂ = 4π is the solid-angle ratio.</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">m_μ = λ₁m_e &nbsp;·&nbsp; m_τ = λ₂m_μ</span><span class="badge b-derived">DERIVED</span></div>
+    <div class="row"><label>m_e (MeV)</label><input id="ms-me" type="number" step="0.0001" value="0.5110" oninput="calcMass()"></div>
+    <div class="row"><label>1/α</label><input id="ms-ia" type="number" step="0.001" value="137.036" oninput="calcMass()"></div>
+    <div class="mgrid" id="ms-out"></div>
+    <div class="eq">λ₁ = 3/(2α) &nbsp;|&nbsp; λ₂ = 3/(8πα) &nbsp;|&nbsp; λ₁/λ₂ = 4π &nbsp;|&nbsp; λ₃ = 3/(32π²α) &nbsp;|&nbsp; inverse: 1/α = 2λ₁/3 from an observed mass ratio &nbsp;|&nbsp; trapping: g/ω_C = 1/2</div>
+    <div class="note">Sources: Torsion Interval Scaling Factors from the Pressure Cascade and Electromagnetic Coupling (derived λ); The Mass Spectrum in the Cohesion UFT (framework and empirical anchors λ₁ = 206.768, λ₂ = 16.817 — the observed ratios, which reproduce the masses exactly by construction). The derived factors land within 0.6% (muon) and 3.3% (tau) of observation with no fitting. Observed: m_μ = 105.658 MeV, m_τ = 1776.86 MeV.</div>
+  </div>
+</section>
+
+<!-- ============ 5. BINARY TOGGLE ============ -->
+<section id="tog">
+  <div class="panel-head"><h2>5 · The binary recursion toggle</h2>
+  <p>Only two stable polarity states exist for the funneled-spring recursion: hexapolar (n = 6) and bipolar (n = 2). All others are geometrically excluded. The toggle threshold between the two gears is universal.</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Φ_toggle = 32/(3π² − 4)</span><span class="badge b-derived">DERIVED</span></div>
+    <div class="row"><label>Φ (stability index of the system)</label><input id="tg-phi" type="number" step="0.01" value="1.0" oninput="calcTog()"></div>
+    <div class="mgrid" id="tg-out"></div>
+    <div class="note">Sources: The Binary Recursion Toggle; Cohesion: A Unified Field Theory of Matter and Motion, Version 4 (the master paper). Geometric exclusion: n = 3 (no symmetric return paths), n = 4 (square packing inefficiency), n = 5 (gear-locks at θ_φ), n ≥ 7 (decay to n = 6). The threshold governs the electromagnetic recursion medium near Φ_toggle, Mercury's perihelion coefficient (computed in Module 19), the pulsar light cylinder, and the graphene Wiedemann-Franz threshold. A third, unipolar (n = 1) state exists only when captured by an external coherence node (Lagrange points, tidal locking).</div>
+  </div>
+</section>
+
+<!-- ============ 6. WEINBERG ANGLE ============ -->
+<section id="wein">
+  <div class="panel-head"><h2>6 · The Weinberg angle — derived at D_GUT</h2>
+  <p>At the unification density, sin²θ_W = 3/8 from the closure content: the ratio of the n = 2 mode's T₃ content to the total charge content of the five-member unified state (three one-third closures and one two-pole doublet). The value at the Z scale, 0.2314, is the standard relation sin²θ_W = α_Y/(α₂ + α_Y) evaluated with the measured couplings — not a running the framework performs. The framework's own form, θ_W = arctan(ω₂/ω₆) at any density, awaits the three mode functions (Module 18).</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">sin²θ_W = Tr(T₃²)/Tr(Q²) = (1/2)/(4/3) = 3/8 at D_GUT</span><span class="badge b-derived">DERIVED AT D_GUT</span></div>
+    <div class="row"><label>1/α₁(m_Z) (GUT-normalised)</label><input id="wn-a1" type="number" step="0.1" value="59.0" oninput="calcWein()"></div>
+    <div class="row"><label>1/α₂(m_Z)</label><input id="wn-a2" type="number" step="0.1" value="29.6" oninput="calcWein()"></div>
+    <div class="mgrid" id="wn-out"></div>
+    <div class="eq">sin²θ_W(μ) = α_Y/(α₂ + α_Y), &nbsp; α_Y = (3/5)α₁ &nbsp;|&nbsp; at unification α₁ = α₂ ⟹ sin²θ_W = 3/8 exactly</div>
+    <div class="note">Source: The Weinberg Angle from SO(10) Recursion Closure Geometry. Numerator 1/2: the two bipolar torsion phases of the lepton doublet, (±1/2)². Denominator 4/3: three fractional slip-phase charges (−1/3)² plus the full lepton charge (−1)². The suppression 0.2312/0.375 = 0.616 is the separation of the n = 2 and n = 6 modes read as a number; its derivation from the mode functions R_n(D_st) is open (Module 18; textbook Ch. 12). The same five-member content is rows 1, 2 and 4 of the closure count in Module 17.</div>
+  </div>
+</section>
+
+<!-- ============ 7. ELECTROWEAK SECTOR ============ -->
+<section id="ew">
+  <div class="panel-head"><h2>7 · The electroweak sector</h2>
+  <p>One empirical anchor — the VEV v — and zero additional free parameters. The Higgs field is the phase separation order parameter Φ ∝ ∆R(D_st); every other electroweak observable is a geometric ratio.</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">v anchors R_EW = ℏc/v; all else follows</span><span class="badge b-anchor">ONE ANCHOR</span></div>
+    <div class="row"><label>v (GeV) — empirical anchor</label><input id="ew-v" type="number" step="0.01" value="246.22" oninput="calcEw()"></div>
+    <div class="row"><label>m_Z (GeV)</label><input id="ew-mz" type="number" step="0.001" value="91.1876" oninput="calcEw()"></div>
+    <div class="row"><label>m_H (GeV)</label><input id="ew-mh" type="number" step="0.01" value="125.25" oninput="calcEw()"></div>
+    <div class="row"><label>sin²θ_W</label><input id="ew-sw" type="number" step="0.0001" value="0.2312" oninput="calcEw()"></div>
+    <div class="mgrid" id="ew-out"></div>
+    <div class="eq">m_W = m_Z·cosθ_W &nbsp;|&nbsp; λ = m_H²/2v² &nbsp;|&nbsp; G_F = √2/(2v²) &nbsp;|&nbsp; θ_W = arctan(ω₆/ω₂) at D_acc</div>
+    <div class="note">Sources: The Electroweak Scale from Recursion Phase Separation; The Standard Model Lagrangian from the Cohesion UFT. The ratio m_W/m_Z = cosθ_W is the phase alignment ratio of the n = 2 and n = 6 recursion modes (observed 0.8814 vs tree-level 0.8768 — the 0.5% gap is radiative). The hierarchy problem dissolves: µ² is the curvature of R(D_st) at D_acc, not a scalar mass parameter subject to Planck-scale corrections.</div>
+  </div>
+</section>
+
+<!-- ============ 8. RUNNING COUPLINGS ============ -->
+<section id="run">
+  <div class="panel-head"><h2>8 · Running couplings — standard-account running, identified</h2>
+  <p>In the framework, running is the density dependence of the recursion frequencies, ω = ω₀/R(D_st), carried by three mode functions R₆, R₂, R₃ that are equal at R = 1 and separate below it. Those functions are open. This module runs the standard account's one-loop equations with the framework's reading attached; the coefficients (33/5, 1, −3) above 1 TeV are the standard account's partner-set count, which the series read as recursion modes opening at that density — an identification. In the closure count of Module 17 nothing opens at 1 TeV; the partner set is replaced by whatever R_n(D_st) does between the two densities (Closure at the Unification Density).</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">1/α_i(μ) = 1/α_i(m_Z) − (b_i/2π)·ln(μ/m_Z)</span><span class="badge b-ident">IDENTIFIED</span></div>
+    <div class="row"><label>log₁₀(μ / GeV)</label><input id="rc-mu" type="range" min="2" max="17" step="0.1" value="4" oninput="calcRun()"><span class="readout" id="rc-mu-v">4.0</span></div>
+    <div class="row"><label>Partner-set coefficients above 1 TeV</label><select id="rc-mode" onchange="calcRun()"><option value="on" selected>On — b = (33/5, 1, −3) (standard account, read as modes)</option><option value="off">Off — standard content only, b = (41/10, −19/6, −7)</option></select></div>
+    <div class="mgrid" id="rc-out"></div>
+    <div class="chartbox"><canvas id="rc-chart"></canvas></div>
+    <div class="note">Source: Running Couplings and Grand Unification in the Cohesion UFT; numerical structure from The Grand Unification Scale and Proton Decay. Starting values at m_Z = 91.2 GeV (GUT-normalised, α₁ = (5/3)α_Y): 1/α₁ = 59.0, 1/α₂ = 29.6, 1/α₃ = 8.5. With the standard content only the three couplings approach but miss each other by 10–15%; with the partner-set coefficients above 1 TeV they converge (next module). Standing: identified — the framework\'s own running runs the other way, from the meeting point it has by construction (R_n(D_GUT) = 1) down to the measured values; Module 18 gives the targets it must land on.</div>
+  </div>
+</section>
+
+<!-- ============ 9. GUT CONVERGENCE ============ -->
+<section id="gut">
+  <div class="panel-head"><h2>9 · GUT convergence and M_GUT — identified</h2>
+  <p>Unification is the density D_GUT at which the three modes' recursion frequencies become equal — a quark and a lepton are one closure differing only in closure fraction — and it is the normalisation R(D_GUT) = 1 of the exact solution: one condition, not two. The scale and coupling below come from the standard account's running with the partner-set coefficients (Module 8); M_GUT and α_GUT from R(D_st) alone are the derivation to be done. The sixteen closures of one generation are counted by the framework in Module 17; SO(10) is the name of the counted content.</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Pairwise intersections of the running couplings</span><span class="badge b-ident">IDENTIFIED</span></div>
+    <div class="row"><label>Threshold for recursion modes (GeV)</label><input id="gt-th" type="number" step="100" value="1000" oninput="calcGut()"></div>
+    <div id="gt-out"></div>
+    <div class="note">Sources: The GUT Group from Recursion Closure Geometry: SO(10); The Grand Unification Scale and Proton Decay. Paper values with the 1 TeV threshold: α₂∩α₃ at 2.45×10¹⁶, α₁∩α₂ at 9.77×10¹⁵, α₁∩α₃ at 1.43×10¹⁶ GeV, all at α_GUT ≈ 1/25 — giving M_GUT ≈ 2×10¹⁶ GeV. SO(10) is the unique simple group whose 16-dimensional spinor holds all the fermions of a generation plus the right-handed neutrino (the whole closure completed at D_GUT); the framework counts the sixteen as poles × content × hands in Module 17, and B−L is the oriented closure content. Standing of this module: identified (textbook Ch. 12, Appendix C).</div>
+  </div>
+</section>
+
+<!-- ============ 10. PROTON DECAY ============ -->
+<section id="pdk">
+  <div class="panel-head"><h2>10 · Proton decay — identified prediction</h2>
+  <p>In the series' reading, SO(10) breaking through an SU(5) intermediate gives the dominant mode p → e⁺π⁰, and the lifetime scales with the fourth power of M_GUT. The formula and its normalisation are the standard account's, with the framework's reading attached: an identified prediction (textbook Ch. 18). The replacement — the rate at which a proton's three segments re-close as a whole closure at the proton's own density, with the decay mode as a threshold of R(D_st) — is the open step (Closure at the Unification Density).</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">τ_p = τ₀·(M_GUT/10¹⁵ GeV)⁴·(α₀/α_GUT)²</span><span class="badge b-ident">IDENTIFIED PREDICTION</span></div>
+    <div class="row"><label>M_GUT (×10¹⁶ GeV)</label><input id="pd-m" type="range" min="0.1" max="10" step="0.05" value="2.0" oninput="calcPdk()"><span class="readout" id="pd-m-v">2.00</span></div>
+    <div class="row"><label>1/α_GUT</label><input id="pd-a" type="number" step="0.5" value="25" oninput="calcPdk()"></div>
+    <div class="mgrid" id="pd-out"></div>
+    <div class="note">Source: The Grand Unification Scale and Proton Decay in the Cohesion UFT. τ₀ ≈ 10³⁰ yr, α₀ = 1/40. The prediction τ_p ≈ 6×10³⁴ yr sits a factor ~4 above the Super-Kamiokande bound (1.6×10³⁴ yr) and within Hyper-Kamiokande reach — falsifiable in the coming decade. An appendix of the source paper records the researcher's hypothesis that, within the framework, the proton may have no physical decay mechanism: Φ = 32/(3π²−4) is a stability boundary, not a decay rate. The closure count makes the hypothesis a precise question — whether the medium inside a proton reaches the density at which the segment and the whole closure become degenerate — and prediction and hypothesis become two values of one function.</div>
+  </div>
+</section>
+
+<!-- ============ 11. NEUTRINOS ============ -->
+<section id="nu">
+  <div class="panel-head"><h2>11 · Neutrino masses</h2>
+  <p>Neutrinos are incomplete n = 6 closures with leakage parameter ε ≪ 1: m_ν = ε·m_e. Exactly three species, fixed by the three closure modes; the hierarchy mirrors the closure leakage ordering. The seesaw emerges geometrically from closure leakage at two scales.</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Closure leakage: m_ν = ε·m_e</span><span class="badge b-anchor">ε EMPIRICAL</span></div>
+    <div class="row"><label>log₁₀(ε)</label><input id="nu-eps" type="range" min="-8" max="-5" step="0.05" value="-6" oninput="calcNu()"><span class="readout" id="nu-eps-v">−6.00</span></div>
+    <div class="row"><label>Seesaw: m_D (GeV)</label><input id="nu-md" type="number" step="0.5" value="10" oninput="calcNu()"></div>
+    <div class="row"><label>Seesaw: M_R (×10¹⁶ GeV)</label><input id="nu-mr" type="number" step="0.1" value="2.0" oninput="calcNu()"></div>
+    <div class="mgrid" id="nu-out"></div>
+    <div class="note">Sources: Neutrino Mass and Oscillation in the Cohesion UFT; The GUT Group (seesaw). With the empirical anchor ε ~ 10⁻⁶–10⁻⁷: m_ν ~ 0.05–0.5 eV, consistent with sub-eV bounds. The seesaw m_ν = m_D²/M_R is the geometric relationship between closure leakage at the electroweak scale (ε ≪ 1) and full closure at D_GUT (ε → 1); the quantitative prediction awaits the Yukawa hierarchy. Oscillation is a geometric phase phenomenon: L_osc ∝ 1/(|ω_i−ω_j|⟨R(D_st)⟩) — denser media shorten it (the MSW effect as elevated R).</div>
+  </div>
+</section>
+
+<!-- ============ 12. ROTATION CURVES / RAR ============ -->
+<section id="rar">
+  <div class="panel-head"><h2>12 · Rotation curves and the radial acceleration relation</h2>
+  <p>The surplus acceleration is regulated by a global suppression factor derived from the coherence-collapse condition. The RAR is exactly linear in log-log space with slope unity and zero curvature — in contrast to MOND's curved RAR — with intrinsic scatter matching SPARC.</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">g_obs = g_bar + C_I·I(R)/(1 + β⟨g_bar⟩)</span><span class="badge b-closure">FORM DERIVED · VALUE STATED</span></div>
+    <div class="row"><label>β (pc/(km/s)²)</label><input id="rr-b" type="number" step="0.001" value="0.235" oninput="calcRar()"></div>
+    <div class="row"><label>⟨g_bar⟩ ((km/s)²/pc)</label><input id="rr-g" type="range" min="0" max="20" step="0.01" value="4.26" oninput="calcRar()"><span class="readout" id="rr-g-v">4.26</span></div>
+    <div class="mgrid" id="rr-out"></div>
+    <div class="eq">S_glob = 1/(1 + β⟨g_bar⟩) &nbsp;|&nbsp; β⁻¹ = 4.26 (km/s)²/pc = a₀ &nbsp;|&nbsp; RAR slope = 1, curvature = 0, scatter ~ 0.05–0.10 dex</div>
+    <div class="note">Source: The Cohesion UFT Rotation-Curve Law, Global Suppression, and the Radial Acceleration Relation. The form of the suppression, S = 1/(1 + β⟨g_bar⟩), is derived from the coherence-collapse condition T_coh,eff = T_slip; the value β = 0.235 pc/(km/s)² is stated by the series at the SPARC median (textbook Ch. 16: form derived, value stated). The shared characteristic scale β⁻¹ = 4.26 (km/s)²/pc = 1.38×10⁻¹⁰ m/s² is a₀ — connecting this module to the surplus-acceleration derivation in Module 1. No interpolating function is required; the suppression denominator is itself the transition. Version 6.1 corrects the unit of β: the source paper and earlier editions print kpc, which is inconsistent with β⁻¹ = a₀ by a factor of 1000; the parsec reading satisfies the paper's own identity and matches the standard scale a₀ ≈ 3.7 (km/s)²/pc (see Module 0).</div>
+  </div>
+</section>
+
+<!-- ============ 13. E = pr ============ -->
+<section id="epr">
+  <div class="panel-head"><h2>13 · The energy identity E = pr and the cascade</h2>
+  <p>Energy is what permanent external pressure produces through the coherence volume of a recursion cycle — at every scale. Exact at the electron scale with no fitting; conserved exactly through the cascade.</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">E = pr, with live electron and proton verification</span><span class="badge b-closure">CLOSURE AT e⁻ AND p</span></div>
+    <div class="row"><label>Pressure p (Pa)</label><input id="ep-p" type="number" step="any" value="1.0e5" oninput="calcEpr()"></div>
+    <div class="row"><label>Recursion volume r (m³)</label><input id="ep-r" type="number" step="any" value="1.0" oninput="calcEpr()"></div>
+    <div class="row"><label>Cascade level k</label><input id="ep-k" type="range" min="-4" max="8" step="1" value="0" oninput="calcEpr()"><span class="readout" id="ep-k-v">0</span></div>
+    <div class="mgrid" id="ep-out"></div>
+    <div class="eq">E = pr &nbsp;|&nbsp; electron: p = m_e⁴c⁵/ℏ³, r = λ_C³ ⟹ pr = m_ec² exactly; proton the same with m_p &nbsp;|&nbsp; cascade: p_k = p₀/3^k, r_k = r₀·3^k, E conserved (ratio 3 = κ₆/κ₂); period ratio per level 3^(3/2)</div>
+    <div class="note">Sources: E = pr: The Scalable Energy Formula; the master paper, Version 4. The electron and proton verifications are computed live from CODATA constants below — the coherence length λ_C is independently defined, so the match is exact and nothing is fitted; the standing is a closure with unit coefficient, since p is defined from E and r (textbook Ch. 4; the proton closure in Ch. 18). The Pressurized Recursive Effect connects E = pr to the fine-structure constant: the gap θ_φ − 1/α is the slip energy of one coherence interval of the electromagnetic recursion medium under the permanent pressure of the electron field from above.</div>
+  </div>
+</section>
+
+<!-- ============ 14. UNITS ============ -->
+<section id="units">
+  <div class="panel-head"><h2>14 · Unit conversion bridge</h2>
+  <p>Conversions between the natural-unit quantities of the series and SI.</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Energy converter</span><span class="badge b-anchor">TOOL</span></div>
+    <div class="row"><label>Value</label><input id="uc-val" type="number" step="any" value="1" oninput="calcUnits()"></div>
+    <div class="row"><label>Unit</label><select id="uc-unit" onchange="calcUnits()"><option value="GeV" selected>GeV</option><option value="MeV">MeV</option><option value="eV">eV</option><option value="J">J</option><option value="kg">kg (mass-energy)</option></select></div>
+    <div class="mgrid" id="uc-out"></div>
+    <div class="note">1 GeV = 1.602177×10⁻¹⁰ J = 1.782662×10⁻²⁷ kg. Compton wavelength of the input mass-energy shown for the coherence-length correspondence λ_C = ℏc/E.</div>
+  </div>
+</section>
+
+<!-- ============ 17. CLOSURE COUNT ============ -->
+<section id="cls">
+  <div class="panel-head"><h2>17 · The closure count — stated</h2>
+  <p>One generation at the unification density holds (two poles) × (one whole closure or one of its three segments) × (two hands) = 16 closures. Each closure's charge is its pole plus half its oriented content, with B − L the oriented content: +1/3 for a segment, −1 for the whole closure. The count is stated with its enumeration explicit; the partition of the n = 6 cycle into three segments is the step that makes it a derivation.</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">16 = (poles 2) × (content 1 + 3) × (hands 2) &nbsp;·&nbsp; Q = pole + content/2</span><span class="badge b-anchor">STATED</span></div>
+    <div class="row"><label>Set</label><select id="cl-set" onchange="calcCls()"><option value="gen" selected>One generation (16 closures)</option><option value="all">With complements (32)</option></select></div>
+    <div class="mgrid" id="cl-out"></div>
+    <div id="cl-table"></div>
+    <div class="eq">Q = T₃ + (B−L)/2 &nbsp;|&nbsp; T₃ = pole = ±1/2 &nbsp;|&nbsp; B−L = oriented content: whole closure −1, segment +1/3 &nbsp;|&nbsp; complement: all signs reversed</div>
+    <div class="note">Sources: Closure at the Unification Density (the count and the charge rule); The GUT Group from Recursion Closure Geometry: SO(10) (B−L as slip-phase orientation); The Weinberg Angle from SO(10) Recursion Closure Geometry (the five-member state); Quark Confinement (the segment); The Dirac Equation from Bipolar Recursion Geometry (the complement). The charge rule is the standard account's relation Q = T₃ + (B−L)/2 read mechanically — an identification. The 3/8 check counts T₃ on the left hand, where the two-pole rotation is free; over the five-member state of Module 6 it is the textbook's trace ratio. SO(10) is the unique simple group whose irreducible sixteen has this content: the framework has the content first and the name second.</div>
+  </div>
+</section>
+
+<!-- ============ 18. UNIFICATION TARGETS ============ -->
+<section id="tgt">
+  <div class="panel-head"><h2>18 · Unification targets — derived constraints</h2>
+  <p>The framework's own running is the density dependence of three mode functions R_n(D_st), equal at R = 1 by the definition of D_GUT and separating below it. The functions are open. This module computes, from the existing inputs and nothing else, what they must return, and two constraints they must satisfy.</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">What R₆, R₂, R₃ must land on</span><span class="badge b-derived">DERIVED CONSTRAINTS</span></div>
+    <div class="row"><label>sin²θ_W(m_Z), measured</label><input id="ut-sw" type="number" step="0.00001" value="0.23122" oninput="calcTgt()"></div>
+    <div class="row"><label>1/α(m_Z), measured</label><input id="ut-iaz" type="number" step="0.01" value="127.95" oninput="calcTgt()"></div>
+    <div class="row"><label>log₁₀(D_EW/D_GUT) — the series' placement</label><input id="ut-logd" type="number" step="0.5" value="-4" oninput="calcTgt()"></div>
+    <div class="mgrid" id="ut-out"></div>
+    <div id="ut-table"></div>
+    <div class="eq">tanθ_W = ω₂/ω₆ &nbsp;|&nbsp; at D_GUT: (3/5)^(1/2) from sin²θ_W = 3/8 &nbsp;|&nbsp; ∆θ(D) = θ_φ − 1/α(D) &nbsp;|&nbsp; g ∝ ∆θ at fixed ω &nbsp;|&nbsp; low density: R ≈ 3^(−1/4)·D^(1/6), common to the modes</div>
+    <div class="note">Sources: Closure at the Unification Density; The Weinberg Angle from SO(10) Recursion Closure Geometry (θ_W = arctan(ω₂/ω₆)); The Exact Solution for R(D_st) (ω = ω₀/R; the electroweak placement at 10⁻⁴ D_GUT); The Fine-Structure Constant from the Cohesion UFT (the chain 1/α = θ_φ − ∆θ); measured values from the Particle Data Group. Nothing is fitted: the measured values are targets to be landed on by a derivation of the mode functions, not inputs to one. The exponent test evaluates the separation a mode-dependent exponent (1/n in place of 1/6) would produce over the same range; it is excluded by the measured ratio, so the separation must be a slowly varying factor on a common power law.</div>
+  </div>
+</section>
+
+<!-- ============ 19. PERIHELION PRECESSION ============ -->
+<section id="per">
+  <div class="panel-head"><h2>19 · Perihelion precession — derived</h2>
+  <p>The coefficient 6 of the precession formula from the toggle threshold. At Φ_toggle the mixed recursion's effective curvature is (nκ)_eff = 3, and the two torque injections per orbit make the coefficient 6 = 2 × 3. Nothing an orbit supplies enters the coefficient; the orbit's elements enter only the magnitude.</p></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">δφ = (nκ)_eff · π · R_s / r_latus at Φ = Φ_toggle</span><span class="badge b-derived">DERIVED</span></div>
+    <div class="row"><label>GM of the primary (10²⁰ m³/s²)</label><input id="pr-gm" type="number" step="any" value="1.3271244" oninput="calcPer()"></div>
+    <div class="row"><label>Semi-major axis a (AU)</label><input id="pr-a" type="number" step="any" value="0.38709927" oninput="calcPer()"></div>
+    <div class="row"><label>Eccentricity e</label><input id="pr-e" type="number" step="any" value="0.20563593" oninput="calcPer()"></div>
+    <div class="row"><label>Orbital period (days)</label><input id="pr-p" type="number" step="any" value="87.969" oninput="calcPer()"></div>
+    <div class="row"><label>Measured precession (″ per century)</label><input id="pr-obs" type="number" step="any" value="42.98" oninput="calcPer()"></div>
+    <div class="mgrid" id="pr-out"></div>
+    <div class="eq">w₆ = 1/Φ, w₂ = 1 − 1/Φ &nbsp;|&nbsp; (nκ)_eff = w₆·6κ₆ + w₂·2κ₂ = (4/π²)(8/Φ + 1) = 3 at Φ_toggle &nbsp;|&nbsp; δφ = 3π R_s/r_latus = 6πGM/(a c²(1 − e²)) per orbit, R_s = 2GM/c², r_latus = a(1 − e²) &nbsp;|&nbsp; per century: × (36 525 d / period)</div>
+    <div class="note">Sources: Perihelion Precession as Bipolar Recursion Collapse (second version, October 2026, which carries the corrected figure and the Venus and Earth values below); The Binary Recursion Toggle; textbook Chapter 8 (Proposition 8.1) and Chapter 15. Standing: derived — the coefficient follows from Φ_toggle and the two injections per orbit with nothing an orbit supplies, and the figure per century is reported with its residual; the form δφ = (nκ)_eff · π · R_s/r_latus is the one relation in the chain the series states rather than derives. Default inputs: GM_⊙ = 1.3271244 × 10²⁰ m³/s² (IAU 2015 nominal); Mercury a = 0.38709927 AU, e = 0.20563593 (JPL Keplerian elements, J2000), sidereal period 87.969 d (NASA fact sheet); measured 42.98″ per century, the relativistic part of the observed precession, which the MESSENGER ranging analysis fixes to a few parts in 10⁵. Correction (Version 6.3): the first version's table printed R_s = 2949.9 m, 0.11% low, which with its rounded elements and orbit count returned 42.92″; with R_s recomputed the chain returns 42.98″, the figure the second version carries. With Venus's elements (a = 0.72333566 AU, e = 0.00677672, 224.701 d) the module returns 8.62″ per century and with Earth's (1.00000261 AU, 0.01671123, 365.256 d) 3.84″, the standard account's values for both.</div>
+  </div>
+</section>
+
+<!-- ============ 15. OPEN PROGRAMME ============ -->
+<section id="opn">
+  <div class="panel-head"><h2>15 · The open research programme</h2>
+  <p>The series' current open list, in the standings vocabulary. The seven problems the series poses in full, with their targets and the module where each is evaluated, follow the terms of <i>Problems for Derivation</i>; the four groups after them are the textbook's Appendix C, which indexes the rest. An open quantity is named, neither derived nor fitted; a derivation that meets the series' rule enters it under its author's name, and the row moves.</p></div>
+  <div id="op-list"></div>
+</section>
+
+<!-- ============ 16. QUICK REFERENCE ============ -->
+<section id="ref">
+  <div class="panel-head"><h2>16 · Quick reference</h2>
+  <p>The derived constants of the series, computed live where possible.</p></div>
+  <div class="card"><div id="ref-out"></div></div>
+</section>
+
+</main>
+<footer>Cohesion UFT Research Calculator · Version 6.5 · Dexter Alan Gilbert · Independent Researcher · 2026<br>Every module states its source paper and its standing; every value verified against source.</footer>
+<script>
+/* ================= shared constants & helpers ================= */
+var CC = 2.99792458e8;                  // m/s
+var KMSMPC = 1000/3.0857e22;            // km/s/Mpc -> 1/s
+var A0_OBS = 1.380e-10;                 // observed MOND scale, m/s^2
+var GOLDEN = (1+Math.sqrt(5))/2;
+var THETA_PHI = 360/(GOLDEN*GOLDEN);    // 137.507764 deg
+var CODATA = 137.035999084;
+var KAPPA6 = 6/(Math.PI*Math.PI);
+var PHI_TOG = 32/(3*Math.PI*Math.PI-4); // 1.249570
+var KPC = 3.0857e19;                    // m
+var KMS2_KPC = 1e6/KPC;                 // (km/s)^2/kpc -> m/s^2
+var PC = 3.0857e16;                     // m
+var KMS2_PC = 1e6/PC;                   // (km/s)^2/pc -> m/s^2
+var GEVJ = 1.602177e-10;                // J per GeV
+var HBAR = 1.054571817e-34, ME_KG = 9.1093837e-31, MP_KG = 1.67262192e-27;
+function g(id){return parseFloat(document.getElementById(id).value);}
+function s(id,v){var e=document.getElementById(id); if(e) e.textContent=v;}
+function h(id,html){var e=document.getElementById(id); if(e) e.innerHTML=html;}
+function M(lbl,val,sub,cls,sub2){
+  return '<div class="m '+(cls||'')+'"><div class="lbl">'+lbl+'</div><div class="val">'+val+'</div><div class="sub">'+(sub||'')+(sub2?('<br>'+sub2):'')+'</div></div>';
+}
+function fx(x,d){ if(!isFinite(x))return '—';
+  if(x!==0&&(Math.abs(x)<1e-3||Math.abs(x)>=1e6))return x.toExponential(d);
+  return x.toFixed(d);}
+
+/* ================= 1. Surplus / MOND ================= */
+function dOfR(r){return Math.pow(Math.pow(3,0.25)*r/Math.pow(1+2*Math.pow(r,4),0.25),6);}  // inversion of the exact implicit solution
+function gsurp(H0si,R){return CC*H0si*R*(1+2*Math.pow(R,4))/6;}
+function solveRtrans(H0si){
+  var target = 6*A0_OBS/(CC*H0si);       // R(1+2R^4) = target, strictly increasing
+  var lo=0, hi=1.5;
+  for(var i=0;i<80;i++){var m=0.5*(lo+hi);
+    if(m*(1+2*Math.pow(m,4))>target) hi=m; else lo=m;}
+  return 0.5*(lo+hi);
+}
+function calcMond(){
+  var h0=g('mond-h0'), R=g('mond-r');
+  s('mond-h0-v',h0.toFixed(1)); s('mond-r-v',R.toFixed(3));
+  var H0=h0*KMSMPC;
+  var gs=gsurp(H0,R);
+  var RT_PAPER=0.748;
+  var Rt=solveRtrans(H0);
+  var a0d=gsurp(H0,RT_PAPER);
+  var dratio=dOfR(RT_PAPER);            // exact inversion at the paper's R_trans (v6.1: 0.439)
+  var dratioR=dOfR(R);                 // exact inversion at the slider R
+  h('mond-out',
+    M('g_surplus(R)',fx(gs,4)+' m/s²','at R = '+R.toFixed(3),'','')+
+    M('a₀ (closure)',fx(a0d,4)+' m/s²','= cH₀·0.748·(1+2·0.748⁴)/6','st-ok','R_trans fixed by a₀ itself; scale cH₀/6 and transition location derived')+
+    M('Residual vs observed',fx((a0d-A0_OBS)/A0_OBS*100,2)+' %','observed 1.380×10⁻¹⁰ m/s²','','')+
+    M('R_trans solved',Rt.toFixed(4),'from R(1+2R⁴) = 6a₀_obs/(cH₀) at this H₀','st-info','paper: 0.748')+
+    M('c_eff at transition',(1/RT_PAPER).toFixed(3)+' c','= c/R_trans','','')+
+    M('D_trans/D_GUT',dratio.toFixed(3),'[3^(1/4)·R_t/(1+2R_t⁴)^(1/4)]⁶ — v6.1 corrected value (paper printed 16.79)','st-ok','from a₀, c, H₀ alone; transition at 44% of D_GUT')+
+    M('D/D_GUT at this R',fx(dratioR,3),'same inversion at R = '+R.toFixed(3),'st-info','R = 1 at D_GUT; R < 1 ⇒ D < D_GUT'));
+}
+
+/* ================= 2. R(Dst) exact ================= */
+var rdChart=null;
+function solveR(d){
+  var rhs=Math.pow(3,-0.25)*Math.pow(d,1/6);
+  var lo=0,hi=1.2;
+  for(var i=0;i<80;i++){var m=0.5*(lo+hi);
+    if(m/Math.pow(1+2*Math.pow(m,4),0.25)>rhs) hi=m; else lo=m;}
+  return 0.5*(lo+hi);
+}
+function rdEpoch(x){
+  if(x<=-6)return 'pre-electroweak'; if(x<=-3)return 'electroweak scale';
+  if(x<=-1.5)return 'QCD scale'; if(x<=-0.6)return 'between EW and GUT';
+  if(x<-0.05)return 'near GUT'; return 'GUT scale (normalised)';}
+function calcRdst(){
+  var x=g('rd-logd');
+  s('rd-logd-v',(x<0?'−':'')+Math.abs(x).toFixed(2));
+  var d=Math.pow(10,x), R=solveR(d);
+  var q=2*Math.pow(R,4), w=(1-q)/(1+q);
+  h('rd-out',
+    M('D_st/D_GUT',d.toExponential(2),rdEpoch(x),'st-info','')+
+    M('R(D_st)',R.toFixed(4),'exact implicit solution','','')+
+    M('c_eff = 1/R',fx(1/R,3)+' × c','','','')+
+    M('w(R)',w.toFixed(4),'= (1−2R⁴)/(1+2R⁴)','','')+
+    M('C = 3^(−1/4)',Math.pow(3,-0.25).toFixed(6),'fixed by R(D_GUT)=1 — not free','st-ok','')+
+    M('R at D_GUT',solveR(1).toFixed(4),'normalisation check','st-ok',''));
+  var cv=document.getElementById('rd-chart'); if(!cv||typeof Chart==='undefined')return;
+  var xs=[]; for(var i=0;i<=80;i++)xs.push(-8+i*0.1);
+  if(rdChart)rdChart.destroy();
+  rdChart=new Chart(cv,{type:'line',data:{labels:xs.map(function(v){return v.toFixed(1);}),
+    datasets:[
+      {label:'R(D_st)',data:xs.map(function(v){return solveR(Math.pow(10,v));}),borderColor:'#1a3a5c',borderWidth:2,pointRadius:0,tension:0.3},
+      {label:'c_eff = 1/R',data:xs.map(function(v){return 1/solveR(Math.pow(10,v));}),borderColor:'#b8860b',borderWidth:2,pointRadius:0,tension:0.3,borderDash:[4,3]}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{font:{size:11},boxWidth:14}}},
+      scales:{x:{title:{display:true,text:'log₁₀(D_st/D_GUT)'},ticks:{maxTicksLimit:9}},
+              y:{title:{display:true,text:'Value'}}}}});
+}
+
+/* ================= 2b. The epoch card ================= */
+function calcEpoch(){
+  var z=g('ep2-z'), hh=g('ep2-h'), dh=g('ep2-dh');
+  if(!isFinite(z)||!isFinite(hh)||z<=0||hh<=0)return;
+  if(!isFinite(dh)||dh<0)dh=0;
+  var x=Math.pow(1+z,3);                 // D_CMB/D_now with D_st as mean matter density
+  var rr=Math.pow(x,-1/6);               // R(D_now)/R(D_CMB) in the power-law regime
+  var need=Math.pow(hh,6), lo=Math.pow(hh-dh,6), hi=Math.pow(hh+dh,6);
+  h('ep2-out',
+    M('(1+z)³',x.toExponential(3),'the matter density at recombination over now','','measured')+
+    M('R(D_now)/R(D_CMB)','1/'+(1/rr).toFixed(1)+' = '+rr.toFixed(4),'with D_st as the mean matter density over a fixed p_cont: (D_now/D_CMB)^(1/6)','st-info','derived form; on the wrong side of one')+
+    M('Measured H_local/H_CMB',hh.toFixed(3)+' ± '+dh.toFixed(3),'73.0 ± 1.0 over 67.4 ± 0.5 km/s/Mpc','','measured')+
+    M('D_now/D_CMB required',need.toFixed(3)+' ('+lo.toFixed(2)+' to '+hi.toFixed(2)+')','= h⁶; independent of the absolute calibration in the power-law regime','st-ok','target (Problem 1)')+
+    M('p_cont factor required',(x*need).toExponential(2),'the containing pressure of the domain must have fallen by this while the matter density fell by (1+z)³','st-info','open: the identification of D_st at the largest scale')+
+    M('Power-law condition','D_now ≲ 10⁻¹² D_GUT','both epochs below it; above, use the exact solution at each density','','stated placement'));
+}
+
+/* ================= 3. Fine-structure ================= */
+function calcFscForward(){
+  var a=1/137;
+  function dth(al){var I=1.5*al; var gg=6*KAPPA6*Math.pow(I,1.5); return 2*gg*180/Math.PI;}
+  for(var i=0;i<60;i++){a=1/(THETA_PHI-dth(a));}
+  var I=1.5*a, gg=6*KAPPA6*Math.pow(I,1.5), d=dth(a), pred=1/a;
+  h('fsc-fwd-out',
+    M('θ_φ = 360/φ²',THETA_PHI.toFixed(6)+'°','golden angle — infinite-time attractor','','')+
+    M('κ₆ = 6/π²',KAPPA6.toFixed(6),'hexagonal curvature','','')+
+    M('C = 3/2','1.500000','(S_e/S_γ)²·π²·κ₆ = (1/4)·6','st-ok','no α as input')+
+    M('Ī = 3α/2',I.toFixed(6),'torsion density','','')+
+    M('g = 6κ₆Ī^(3/2)',gg.toFixed(6),'torsion slope','','')+
+    M('∆θ (slip operator)',d.toFixed(6)+'°','= 2g·(180/π)','','')+
+    M('1/α geometric',pred.toFixed(3),'no free parameters','st-ok',pred.toFixed(6))+
+    M('CODATA',CODATA.toFixed(6),'difference +'+(CODATA-pred).toFixed(3),'st-info','containing-scale signature — identified')+
+    M('t_coh = 2/g',(2/gg).toFixed(2)+' recursion units','the slip cadence at the electron scale, ω = 1; ν_r = g/2 = '+(gg/2).toFixed(6)+' per unit; a_r = g²/ω = '+fx(gg*gg,3),'st-ok','derived (textbook Ch. 7, 9)')+
+    M('Per-peak slip Δθ/6',(d/6).toFixed(4)+'°','the six-peak structure of the n = 6 cycle','','Hexagonal Recursion; derived')+
+    M('ω_C = m_ec²/ℏ',fx(ME_KG*CC*CC/HBAR,4)+' s⁻¹','the Compton angular rate: the trapping condition\'s rate, and the electron closure\'s length over the medium\'s rate, c/λ_C','','CODATA; textbook Ch. 4 and 11')+
+    M('Recursion unit u_e = λ_C/c',fx(HBAR/(ME_KG*CC*CC),4)+' s','= ℏ/(m_ec²) = 1/ω_C: the radian time of the minimal trapped recursion, whose boundary circulates at the medium\'s rate; the two readings of Version 6.4 were two counts of this unit','st-ok','identified from two closures (The Recursion Unit; textbook §7.4, fourth version)')+
+    M('t_coh in seconds',fx((2/gg)*HBAR/(ME_KG*CC*CC),4)+' s','ν_r = '+fx(gg*ME_KG*CC*CC/HBAR/2,4)+' s⁻¹; a_r = g²ω_C² = '+fx(gg*gg*Math.pow(ME_KG*CC*CC/HBAR,2),4)+' rad/s²; '+((2/gg)/(2*Math.PI)).toFixed(1)+' turns of the recursion per slip','st-ok','the derived count in the identified unit')+
+    M('2ℏg at the electron\'s rate',(2*gg*ME_KG*CC*CC/GEVJ*1e6).toFixed(2)+' keV','= 2g·m_ec² = Δθ·m_ec²: the release of the free recursion\'s gear-shift at ω_C (textbook §8.4 and §22.4, fourth version); not the switching energy of a device','st-info','form derived; no measurement attached'));
+}
+function calcFscCheck(){
+  var gw=g('fsc-gw'); if(!isFinite(gw)||gw<=0)return;
+  var rad=2*gw, deg=rad*180/Math.PI, inv=THETA_PHI-deg;
+  h('fsc-chk-out',
+    M('∆θ = 2g/ω',fx(rad,6)+' rad',deg.toFixed(4)+'°','','')+
+    M('1/α = θ_φ − ∆θ',inv.toFixed(6)+'°','slip-time form','st-ok','')+
+    M('Residual vs CODATA',fx(inv-CODATA,4)+'°','','','')+
+    M('τ(t_coh)','2 rad','exact: g·(2/g) — coherence limit','','')+
+    M('a = g²/ω',fx(gw*gw,4)+' rad/unit','mean EM recursion restart rate (ω = 1)','st-info','slip is the cause of acceleration'));
+}
+
+/* ================= 4. Lepton masses ================= */
+function calcMass(){
+  var me=g('ms-me'), ia=g('ms-ia'); if(!isFinite(me)||!isFinite(ia)||me<=0||ia<=0)return;
+  var al=1/ia;
+  var l1=1.5/al, l2=1.5/(4*Math.PI*al);
+  var mmu=l1*me, mtau=l2*mmu;
+  var e1=(mmu-105.658)/105.658*100, e2=(mtau-1776.86)/1776.86*100;
+  var invAlpha=2*206.768/3;   // inverse: from observed mu/e ratio
+  h('ms-out',
+    M('λ₁ = 3/(2α)',l1.toFixed(3),'derived scaling factor','st-ok','empirical anchor: 206.768')+
+    M('λ₂ = 3/(8πα)',l2.toFixed(4),'derived scaling factor','st-ok','empirical anchor: 16.817')+
+    M('λ₁/λ₂',(l1/l2).toFixed(4),'= 4π = '+(4*Math.PI).toFixed(4),'st-info','solid-angle ratio')+
+    M('m_μ predicted',mmu.toFixed(3)+' MeV','observed 105.658 — residual '+fx(e1,2)+'%','','')+
+    M('m_τ predicted',(mtau/1000).toFixed(4)+' GeV','observed 1.77686 — residual '+fx(e2,2)+'%','','')+
+    M('Inverse: 1/α from m_μ/m_e',invAlpha.toFixed(2),'= 2λ₁(obs)/3 — vs 137.036','st-info','consistency check')+
+    M('λ₃ = 3/(32π²α)',(1.5/(16*Math.PI*Math.PI*al)).toFixed(3),'a fourth winding would carry 30% over the tau: below the surplus needed to close','st-ok','derived: no fourth charged lepton (textbook Ch. 11)')+
+    M('Trapping ratio (1/2)/(g/ω)',(0.5/(6*KAPPA6*Math.pow(1.5*al,1.5))).toFixed(1),'the photon\'s g/ω against the trapping threshold g/ω_C = 1/2 of the electron','st-info','the condition stated; the ratio follows (textbook Ch. 11)'));
+}
+
+/* ================= 5. Binary toggle ================= */
+function calcTog(){
+  var p=g('tg-phi'); if(!isFinite(p))return;
+  h('tg-out',
+    M('Φ_toggle = 32/(3π²−4)',PHI_TOG.toFixed(6),'universal threshold','st-ok','')+
+    M('Regime at Φ = '+p,(p<PHI_TOG?'HEXAPOLAR (n = 6)':'BIPOLAR (n = 2)'),(p<PHI_TOG?'below threshold':'above threshold'),'st-info','')+
+    M('Margin to threshold',fx(PHI_TOG-p,4),'gear-shift and emission at Φ = Φ_toggle','','')+
+    M('Couplings','C₆ = 3/2 · C₂ = 1/2','cascade ratio κ₆/κ₂ = 3','',''));
+}
+
+/* ================= 6. Weinberg ================= */
+function calcWein(){
+  var ia1=g('wn-a1'), ia2=g('wn-a2'); if(!isFinite(ia1)||!isFinite(ia2)||ia1<=0||ia2<=0)return;
+  var a1=1/ia1, a2=1/ia2, aY=(3/5)*a1;
+  var sw=aY/(a2+aY);
+  h('wn-out',
+    M('sin²θ_W at D_GUT','3/8 = 0.375000','Tr(T₃²)/Tr(Q²) = (1/2)/(4/3)','st-ok','SO(10) 5̄ closure geometry')+
+    M('sin²θ_W(m_Z) computed',sw.toFixed(4),'= α_Y/(α₂+α_Y), α_Y = (3/5)α₁','st-ok','standard relation with the measured couplings — not a framework running')+
+    M('Observed at Z scale','0.23122','PDG; the computed value is the same relation with measured inputs','','')+
+    M('Mixing suppression',(0.2312/0.375).toFixed(3),'0.2312/0.375 — the mode separation read as a number','st-info','derivation from R_n(D_st): open (Module 18)')+
+    M('θ_W',(Math.asin(Math.sqrt(sw))*180/Math.PI).toFixed(2)+'°','from computed sin²θ_W','','')+
+    M('At unification','3/8 exactly','α₁ = α₂ ⟹ sin²θ_W = (3/5)/(8/5)','st-info','same formula, both endpoints'));
+}
+
+/* ================= 7. Electroweak ================= */
+function calcEw(){
+  var v=g('ew-v'), mz=g('ew-mz'), mh=g('ew-mh'), sw=g('ew-sw');
+  if(!isFinite(v)||!isFinite(mz)||!isFinite(mh)||!isFinite(sw))return;
+  var cw=Math.sqrt(1-sw);
+  var mw=mz*cw;
+  var lam=mh*mh/(2*v*v);
+  var gf=Math.SQRT2/(2*v*v);
+  h('ew-out',
+    M('cosθ_W',cw.toFixed(4),'phase alignment ratio of n=2 / n=6 modes','','')+
+    M('m_W predicted',mw.toFixed(3)+' GeV','= m_Z·cosθ_W — observed 80.377 (0.5% radiative)','st-ok','')+
+    M('m_W/m_Z',cw.toFixed(4),'observed 0.8814','','')+
+    M('λ = m_H²/2v²',lam.toFixed(4),'curvature ratio of R(D_st) at D_acc','st-ok','observed 0.1294')+
+    M('G_F = √2/(2v²)',fx(gf,4)+' GeV⁻²','observed 1.1664×10⁻⁵','st-ok','')+
+    M('R_EW = ℏc/v','set by anchor v','one free parameter at the EW scale','st-info','v and θ_W: one geometric object'));
+}
+
+/* ================= 8. Running couplings ================= */
+var rcChart=null;
+var RC_START=[59.0,29.6,8.5], MZ=91.2, MTH_DEF=1000;
+var B_SM=[41/10,-19/6,-7], B_RM=[33/5,1,-3];
+function invAlphaAt(mu, useRM, mth){
+  // piecewise one-loop running from mZ
+  var out=[];
+  for(var i=0;i<3;i++){
+    var val=RC_START[i];
+    if(!useRM || mu<=mth){
+      val-= B_SM[i]/(2*Math.PI)*Math.log(mu/MZ);
+    } else {
+      val-= B_SM[i]/(2*Math.PI)*Math.log(mth/MZ);
+      val-= B_RM[i]/(2*Math.PI)*Math.log(mu/mth);
+    }
+    out.push(val);
+  }
+  return out;
+}
+function calcRun(){
+  var lg=g('rc-mu'); s('rc-mu-v',lg.toFixed(1));
+  var mode=document.getElementById('rc-mode').value==='on';
+  var mu=Math.pow(10,lg);
+  var ia=invAlphaAt(mu,mode,MTH_DEF);
+  h('rc-out',
+    M('μ',fx(mu,2)+' GeV','probe scale ↔ effective density D_st(μ)','st-info','')+
+    M('1/α₁(μ)',ia[0].toFixed(2),'n = 6 hexapolar mode (U(1), GUT-normalised)','','')+
+    M('1/α₂(μ)',ia[1].toFixed(2),'n = 2 bipolar mode (SU(2))','','')+
+    M('1/α₃(μ)',ia[2].toFixed(2),'three-slip-phase mode (SU(3))','','')+
+    M('Spread',(Math.max.apply(null,ia)-Math.min.apply(null,ia)).toFixed(2),'max − min of the three','st-info',''));
+  var cv=document.getElementById('rc-chart'); if(!cv||typeof Chart==='undefined')return;
+  var xs=[]; for(var i=0;i<=75;i++)xs.push(2+i*0.2);
+  function series(idx){return xs.map(function(v){return invAlphaAt(Math.pow(10,v),mode,MTH_DEF)[idx];});}
+  if(rcChart)rcChart.destroy();
+  rcChart=new Chart(cv,{type:'line',data:{labels:xs.map(function(v){return v.toFixed(1);}),
+    datasets:[
+      {label:'1/α₁',data:series(0),borderColor:'#1a3a5c',borderWidth:2,pointRadius:0},
+      {label:'1/α₂',data:series(1),borderColor:'#b8860b',borderWidth:2,pointRadius:0},
+      {label:'1/α₃',data:series(2),borderColor:'#1e7a3c',borderWidth:2,pointRadius:0}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{font:{size:11},boxWidth:14}}},
+      scales:{x:{title:{display:true,text:'log₁₀(μ / GeV)'},ticks:{maxTicksLimit:9}},
+              y:{title:{display:true,text:'1/α_i'}}}}});
+}
+
+/* ================= 9. GUT convergence ================= */
+function pairIntersect(i,j,mth){
+  // slopes above threshold (recursion modes on)
+  var vi=RC_START[i]-B_SM[i]/(2*Math.PI)*Math.log(mth/MZ);
+  var vj=RC_START[j]-B_SM[j]/(2*Math.PI)*Math.log(mth/MZ);
+  var si=-B_RM[i]/(2*Math.PI), sj=-B_RM[j]/(2*Math.PI);
+  var L=(vj-vi)/(si-sj);              // ln(mu/mth)
+  var mu=mth*Math.exp(L);
+  var invA=vi+si*L;
+  return [mu,invA];
+}
+function calcGut(){
+  var mth=g('gt-th'); if(!isFinite(mth)||mth<MZ)mth=1000;
+  var p23=pairIntersect(1,2,mth), p12=pairIntersect(0,1,mth), p13=pairIntersect(0,2,mth);
+  var rows=[
+    ['α₂ ∩ α₃',p23,'2.45×10¹⁶','1/25'],
+    ['α₁ ∩ α₂',p12,'9.77×10¹⁵','1/25'],
+    ['α₁ ∩ α₃',p13,'1.43×10¹⁶','1/25']];
+  var tb='<table class="t"><tr><th>Pair</th><th>Computed scale (GeV)</th><th>Computed 1/α_GUT</th><th>Paper scale</th><th>Paper α_GUT</th></tr>';
+  rows.forEach(function(r){tb+='<tr><td>'+r[0]+'</td><td>'+r[1][0].toExponential(2)+'</td><td>'+r[1][1].toFixed(1)+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>';});
+  tb+='</table>';
+  tb+='<div class="mgrid" style="margin-top:12px">'+
+    M('M_GUT',p23[0].toExponential(2)+' GeV','α₂∩α₃ intersection — paper: ≈ 2×10¹⁶ GeV','st-ok','identified; from R(D_st) alone: open')+
+    M('α_GUT','≈ 1/'+Math.round((p23[1]+p12[1]+p13[1])/3),'paper: ≈ 1/25','st-ok','identified; from the torsion slope at R = 1: open')+
+    M('Unification condition','R_n(D_GUT) = 1','every mode function equal at the normalisation point','st-info','quarks and leptons: one closure, differing in fraction')+
+    M('GUT group','SO(10)','16 = 2 × 4 × 2 closures (Module 17); SO(10) names the counted content','st-ok','includes ν_R; B−L = the oriented closure content')+
+    M('R_GUT = ℏc/M_GUT',(1.97327e-16/p23[0]).toExponential(2)+' m','the recursion length at unification, a length and not R(D_st); ≈ 10⁻³² m at 2×10¹⁶ GeV, the value the paper gives','','dimensional (textbook Ch. 18)')+
+    M('R_GUT/R_EW = v/M_GUT',(246.22/p23[0]).toExponential(2),'against R_EW = ℏc/v in Module 7; 1.2×10⁻¹⁴ at 2×10¹⁶ GeV','','dimensional')+
+    '</div>';
+  h('gt-out','<div class="card" style="margin-top:0;border:none;box-shadow:none;padding:0">'+tb+'</div>');
+}
+
+/* ================= 10. Proton decay ================= */
+function calcPdk(){
+  var m16=g('pd-m'), iag=g('pd-a');
+  s('pd-m-v',m16.toFixed(2));
+  if(!isFinite(m16)||!isFinite(iag)||m16<=0||iag<=0)return;
+  var MG=m16*1e16, aG=1/iag, a0=1/40, tau0=1e30;
+  var tau=tau0*Math.pow(MG/1e15,4)*Math.pow(a0/aG,2);
+  var sk=1.6e34;
+  var status = tau>sk ? (tau<1e36?'CONSISTENT — within Hyper-K reach':'consistent; beyond near-term reach') : 'EXCLUDED by Super-Kamiokande';
+  h('pd-out',
+    M('τ_p (p → e⁺π⁰)',tau.toExponential(2)+' yr','','st-ok','')+
+    M('Super-K bound','> 1.6×10³⁴ yr','ratio to bound: '+(tau/sk).toFixed(1)+'×','','')+
+    M('Status',status,'','st-info','')+
+    M('Scenario table','SU(5): ~10³⁰ (excluded)','SM near-unif: ~10³² (excluded) · SO(10) exact: ~6×10³⁴ ✓','',''));
+}
+
+/* ================= 11. Neutrinos ================= */
+function calcNu(){
+  var le=g('nu-eps'), md=g('nu-md'), mr16=g('nu-mr');
+  s('nu-eps-v',(le<0?'−':'')+Math.abs(le).toFixed(2));
+  var eps=Math.pow(10,le);
+  var mnu=eps*0.511e6;                 // eV
+  var MR=mr16*1e16;
+  var seesaw=md*md/MR*1e9;             // GeV^2/GeV = GeV -> eV
+  h('nu-out',
+    M('m_ν = ε·m_e',fx(mnu,3)+' eV','leakage parameter ε = '+eps.toExponential(2),'st-ok','sub-eV: consistent with bounds')+
+    M('Species','exactly 3','fixed by the three closure modes','st-info','hierarchy m_νe < m_νμ < m_ντ')+
+    M('Seesaw m_ν = m_D²/M_R',fx(seesaw,3)+' eV','m_D = '+md+' GeV, M_R = '+mr16+'×10¹⁶ GeV','','geometric: leakage at two scales')+
+    M('Oscillation','L_osc ∝ 1/(|ω_i−ω_j|⟨R⟩)','denser media → shorter L_osc (MSW as elevated R)','st-info',''));
+}
+
+/* ================= 12. RAR ================= */
+function calcRar(){
+  var b=g('rr-b'), gb=g('rr-g');
+  s('rr-g-v',gb.toFixed(2));
+  if(!isFinite(b)||b<=0)return;
+  var a0si=(1/b)*KMS2_PC;          // direct conversion: (km/s)^2/pc -> m/s^2 (v6.1)
+  var gbsi=gb*KMS2_PC;
+  var S=1/(1+b*gb);
+  h('rr-out',
+    M('a₀ = β⁻¹',(1/b).toFixed(2)+' (km/s)²/pc',fx(a0si,3)+' m/s² — direct conversion; residual vs observed '+fx((a0si-A0_OBS)/A0_OBS*100,2)+'%','st-ok','matches Module 1')+
+    M('⟨g_bar⟩ in SI',fx(gbsi,3)+' m/s²','g_bar/a₀ = '+(b*gb).toFixed(3),'','')+
+    M('S_glob = 1/(1+β⟨g_bar⟩)',S.toFixed(4),'global suppression at ⟨g_bar⟩ = '+gb.toFixed(2)+' (km/s)²/pc','','S = 1/2 at g_bar = a₀')+
+    M('Weak-field limit','S → 1','full surplus active (⟨g_bar⟩ ≪ β⁻¹)','st-info','')+
+    M('High-acceleration limit','S → 1/(β⟨g_bar⟩)','surplus attenuated','st-info','')+
+    M('RAR shape','slope 1 · curvature 0','scatter ~0.05–0.10 dex (SPARC-consistent)','st-ok','MOND: curved; Cohesion UFT: linear'));
+}
+
+/* ================= 13. E = pr ================= */
+function calcEpr(){
+  var p=g('ep-p'), r=g('ep-r'), k=g('ep-k');
+  s('ep-k-v',String(k));
+  if(!isFinite(p)||!isFinite(r))return;
+  // electron verification from constants
+  var lamC=HBAR/(ME_KG*CC);
+  var pe=Math.pow(ME_KG,4)*Math.pow(CC,5)/Math.pow(HBAR,3);
+  var re=Math.pow(lamC,3);
+  var Ee=pe*re, mec2=ME_KG*CC*CC;
+  var lamP=HBAR/(MP_KG*CC), pp=Math.pow(MP_KG,4)*Math.pow(CC,5)/Math.pow(HBAR,3), rp=Math.pow(lamP,3), Ep=pp*rp;
+  var pk=p/Math.pow(3,k), rk=r*Math.pow(3,k);
+  h('ep-out',
+    M('E = pr',fx(p*r,4)+' J','your inputs','','')+
+    M('Electron: p',fx(pe,4)+' Pa','= m_e⁴c⁵/ℏ³','st-ok','')+
+    M('Electron: r = λ_C³',fx(re,4)+' m³','λ_C = '+fx(lamC,4)+' m','st-ok','')+
+    M('Electron: pr',fx(Ee,4)+' J','m_ec² = '+fx(mec2,4)+' J — exact, no fitting','st-ok','')+
+    M('Proton: p = m_p⁴c⁵/ℏ³',fx(pp,4)+' Pa','λ_C,p = '+fx(lamP,5)+' m; r = λ_C,p³ = '+fx(rp,4)+' m³','st-ok','CODATA m_p')+
+    M('Proton: pr',fx(Ep,4)+' J','= '+(Ep/GEVJ*1000).toFixed(3)+' MeV; m_pc² = '+fx(MP_KG*CC*CC,4)+' J — exact','st-ok','closure with unit coefficient (textbook Ch. 18)')+
+    M('Cascade level k = '+k,'p_k = '+fx(pk,3)+' Pa','r_k = '+fx(rk,3)+' m³','st-info','')+
+    M('E at level k',fx(pk*rk,4)+' J','conserved: p_k r_k = p₀r₀ (ratio 3 = κ₆/κ₂)','st-ok','')+
+    M('Period ratio per level','3^(3/2) = '+Math.pow(3,1.5).toFixed(3),'the cascade\'s timing step, read in the sub-pulse structure of Chapter 19','st-info','stated'));
+}
+
+/* ================= 14. Units ================= */
+function calcUnits(){
+  var v=g('uc-val'), u=document.getElementById('uc-unit').value;
+  if(!isFinite(v))return;
+  var J;
+  if(u==='GeV')J=v*GEVJ; else if(u==='MeV')J=v*GEVJ*1e-3; else if(u==='eV')J=v*GEVJ*1e-9;
+  else if(u==='J')J=v; else J=v*CC*CC; // kg
+  var gev=J/GEVJ;
+  var lamC = gev>0 ? 1.97327e-16/gev : NaN;   // hbar*c = 0.19733 GeV·fm = 1.97327e-16 GeV·m
+  h('uc-out',
+    M('Energy',fx(J,4)+' J',fx(gev,4)+' GeV = '+fx(gev*1e3,4)+' MeV = '+fx(gev*1e9,4)+' eV','','')+
+    M('Mass-energy',fx(J/(CC*CC),4)+' kg','E/c²','','')+
+    M('λ_C = ℏc/E',fx(lamC,4)+' m','coherence-length correspondence','st-info',''));
+}
+
+
+/* ================= 17. Closure count ================= */
+function fq(q){ var t=Math.round(q*3); if(t===0)return '0'; var sg=t<0?'−':'+'; var a=Math.abs(t); return sg+(a===3?'1':(a+'/3')); }
+function calcCls(){
+  var withC=document.getElementById('cl-set').value==='all';
+  var poles=[[0.5,'+1/2'],[-0.5,'−1/2']];
+  var contents=[['whole',-1,1],['segment',1/3,3]];
+  var hands=['left','right'];
+  var names={'0.5|whole|left':'ν_L','-0.5|whole|left':'e_L','0.5|segment|left':'u_L (×3 colours)','-0.5|segment|left':'d_L (×3 colours)',
+             '0.5|whole|right':'ν_R','-0.5|whole|right':'e_R','0.5|segment|right':'u_R (×3 colours)','-0.5|segment|right':'d_R (×3 colours)'};
+  var rows=[], n=0, trT3L=0, trQ=0, fiveT3=0, fiveQ=0;
+  hands.forEach(function(hd){ contents.forEach(function(ct){ poles.forEach(function(p){
+    var q=p[0]+ct[1]/2, m=ct[2];
+    rows.push({pole:p[1],poleV:p[0],content:ct[0],bl:ct[1],hand:hd,m:m,name:names[p[0]+'|'+ct[0]+'|'+hd],q:q});
+    n+=m; trQ+=m*q*q; if(hd==='left')trT3L+=m*p[0]*p[0];
+    if(hd==='left'&&ct[0]==='whole'){fiveT3+=m*p[0]*p[0]; fiveQ+=m*q*q;}
+    if(hd==='left'&&ct[0]==='segment'&&p[0]<0){fiveQ+=m*q*q;}
+  });});});
+  var tb='<table class="t"><tr><th>Pole (T₃)</th><th>Content (B−L)</th><th>Hand</th><th>Closures</th><th>Standard name</th><th>Q = pole + content/2</th></tr>';
+  rows.forEach(function(r){tb+='<tr><td>'+r.pole+'</td><td>'+r.content+', '+fq(r.bl)+'</td><td>'+r.hand+'</td><td>'+r.m+'</td><td>'+r.name+'</td><td>'+fq(r.q)+'</td></tr>';});
+  if(withC){rows.forEach(function(r){tb+='<tr><td>'+fq(-r.poleV*2).replace('1','1/2')+'</td><td>'+r.content+', '+fq(-r.bl)+'</td><td>'+r.hand+'</td><td>'+r.m+'</td><td>complement of '+r.name+'</td><td>'+fq(-r.q)+'</td></tr>';});}
+  tb+='</table>';
+  h('cl-table',tb);
+  h('cl-out',
+    M('Closures counted',String(withC?2*n:n),'(poles 2) × (content 1 + 3) × (hands 2)'+(withC?' × (complement 2)':''),'st-ok','every charge from the three labels')+
+    M('Charge rule','Q = T₃ + (B−L)/2','pole + half the oriented content','st-info','identification of the standard relation')+
+    M('3/8 check, five-member state',(fiveT3/fiveQ).toFixed(4),'Tr(T₃²)/Tr(Q²) = '+fiveT3.toFixed(3)+'/'+fiveQ.toFixed(3)+' over ν_L, e_L, d_L×3','st-ok','textbook Prop. 12.2')+
+    M('3/8 check, full generation',(trT3L/trQ).toFixed(4),'T₃ counted on the left hand: '+trT3L.toFixed(3)+'/'+trQ.toFixed(3),'st-ok','same value over all sixteen')+
+    M('Right-handed neutrino','whole, +1/2, right','the closure that leaks by ε at low density and is complete at D_GUT','st-info','')+
+    M('Standing','STATED','enumeration explicit; the partition into three segments is the open step','st-info','SO(10) names the counted content'));
+}
+
+/* ================= 18. Unification targets ================= */
+function chainInvAlpha(){
+  var a=1/137;
+  function dth(al){var I=1.5*al; var gg=6*KAPPA6*Math.pow(I,1.5); return 2*gg*180/Math.PI;}
+  for(var i=0;i<60;i++){a=1/(THETA_PHI-dth(a));}
+  return [1/a, dth(a)];
+}
+function calcTgt(){
+  var sw=g('ut-sw'), iaz=g('ut-iaz'), lgd=g('ut-logd');
+  if(!isFinite(sw)||!isFinite(iaz)||!isFinite(lgd)||sw<=0||sw>=1||iaz<=0)return;
+  var tG=Math.sqrt(3/5);                       // tan θ_W at D_GUT from 3/8
+  var tZ=Math.sqrt(sw/(1-sw));                 // tan θ_W at m_Z from measured sin²
+  var ratio=tZ/tG, decades=-lgd;
+  var expTest=Math.pow(Math.pow(10,lgd),0.5-1/6);   // separation a 1/2 vs 1/6 exponent would give
+  var ch=chainInvAlpha(), iae=ch[0], dthE=ch[1];
+  var dthZ=THETA_PHI-iaz;
+  var slope=dthZ/dthE;
+  h('ut-out',
+    M('tanθ_W at D_GUT',tG.toFixed(4),'= (3/5)^(1/2), from sin²θ_W = 3/8','st-ok','framework: derived')+
+    M('tanθ_W at m_Z',tZ.toFixed(4),'from measured sin²θ_W = '+sw,'st-info','target')+
+    M('Mode-separation factor',ratio.toFixed(3),'tanθ_W(m_Z)/tanθ_W(D_GUT) over '+decades.toFixed(1)+' decades of density','st-ok','what R₂/R₆ must do between D_GUT and 10^'+lgd+' D_GUT')+
+    M('Exponent test',expTest.toExponential(2),'(D_EW/D_GUT)^(1/2−1/6): a 1/n exponent would separate the modes by this factor','st-info','excluded by the measured '+ratio.toFixed(3)+' — a slow factor on a common power law')+
+    M('1/α at the electron',iae.toFixed(3),'the chain; ∆θ = '+dthE.toFixed(4)+'°','st-ok','derived')+
+    M('∆θ at m_Z',dthZ.toFixed(3)+'°','= θ_φ − 1/α(m_Z) = '+THETA_PHI.toFixed(3)+' − '+iaz,'st-info','target')+
+    M('g(EW)/g(e)',slope.toFixed(2),'slip operator ratio at fixed ω','st-ok','the torsion slope at the electroweak density, in units of the electron\'s')+
+    M('Meeting point','R_n(D_GUT) = 1','by construction, for every mode','st-info','the calculation runs down from here to the targets'));
+  var rows=[
+    ['tanθ_W at D_GUT',tG.toFixed(4),'closure content: 3/8','derived'],
+    ['tanθ_W at the electroweak density',tZ.toFixed(4),'measured sin²θ_W(m_Z)','target'],
+    ['ratio across '+decades.toFixed(1)+' decades',ratio.toFixed(3),'the two above; the series\' placement of D_EW','target'],
+    ['1/α at the electron',iae.toFixed(3),'the chain (CODATA 137.036)','derived'],
+    ['1/α at m_Z',iaz.toFixed(2),'measured','target'],
+    ['∆θ(m_Z) / ∆θ(e)',slope.toFixed(2),'g(EW)/g(e) at fixed ω','derived constraint'],
+    ['the three couplings','equal at R = 1','definition of D_GUT','by construction'],
+    ['D_EW/D_GUT, D_QCD/D_GUT','10⁻⁴, 10⁻²','the series\' placements','stated'],
+    ['μ ↔ D_st map','to be derived','anchored by m_Z at 10⁻⁴ and M_GUT at 1','open']];
+  var tb='<table class="t"><tr><th>Quantity</th><th>Value</th><th>Source</th><th>Standing</th></tr>';
+  rows.forEach(function(r){tb+='<tr><td style="font-family:Georgia,serif;font-size:0.9em">'+r[0]+'</td><td>'+r[1]+'</td><td style="font-family:Georgia,serif;font-size:0.88em">'+r[2]+'</td><td style="font-family:Georgia,serif;font-size:0.88em">'+r[3]+'</td></tr>';});
+  h('ut-table',tb+'</table>');
+}
+
+/* ================= 19. Perihelion precession ================= */
+var AU_M = 1.495978707e11;              // m
+var ARCSEC = 180/Math.PI*3600;          // rad -> arcsec
+function calcPer(){
+  var gm=g('pr-gm')*1e20, a=g('pr-a'), e=g('pr-e'), P=g('pr-p'), obs=g('pr-obs');
+  if(!isFinite(gm)||!isFinite(a)||!isFinite(e)||!isFinite(P)||gm<=0||a<=0||e<0||e>=1||P<=0)return;
+  var w6=1/PHI_TOG, w2=1-w6;
+  var nk=w6*6*KAPPA6+w2*2*(2/(Math.PI*Math.PI));          // = (4/π²)(8/Φ_t + 1) = 3
+  var Rs=2*gm/(CC*CC);
+  var rl=a*AU_M*(1-e*e);
+  var dphi=nk*Math.PI*Rs/rl;                               // rad per orbit
+  var orbits=36525/P;
+  var cy=dphi*ARCSEC*orbits;
+  var res=isFinite(obs)?cy-obs:NaN;
+  h('pr-out',
+    M('Φ_toggle',PHI_TOG.toFixed(6),'32/(3π² − 4); the orbit sits at the threshold','st-ok','')+
+    M('Weights at the threshold','w₆ = '+w6.toFixed(4)+' · w₂ = '+w2.toFixed(4),'(3π² − 4)/32 and (36 − 3π²)/32','','')+
+    M('(nκ)_eff',nk.toFixed(6),'w₆·6κ₆ + w₂·2κ₂ = '+(w6*6*KAPPA6).toFixed(3)+' + '+(w2*2*(2/(Math.PI*Math.PI))).toFixed(3)+'; the cascade ratio κ₆/κ₂','st-ok','')+
+    M('Coefficient','6 = 2 × '+nk.toFixed(3),'two torque injections per orbit × (nκ)_eff','st-ok','')+
+    M('R_s = 2GM/c²',fx(Rs,2)+' m','Schwarzschild radius of the primary','','')+
+    M('r_latus = a(1 − e²)',fx(rl/AU_M,6)+' AU',fx(rl,4)+' m','','')+
+    M('δφ per orbit',(dphi*ARCSEC).toFixed(5)+'″',fx(dphi,4)+' rad = 3π R_s/r_latus','st-ok','')+
+    M('Orbits per century',orbits.toFixed(3),'36 525 d / period','','')+
+    M('δφ per century',cy.toFixed(3)+'″','derived','st-ok','')+
+    M('Residual',isFinite(res)?((res>=0?'+':'')+res.toFixed(3)+'″ ('+(res/obs*100).toFixed(3)+'%)'):'—','against the measured value entered','st-info','Mercury: 42.98″ measured; v6.2 and earlier carried 42.92″ from rounded inputs'));
+}
+
+/* ================= 15. Open programme ================= */
+function renderOps(){
+  var ops=[
+    ['Problem 1 · The structural density of the observable domain','OPEN','b-open',
+     'Target: R(D_now)/R(D_CMB) = 1.083 ± 0.017, equivalently D_now/D_CMB = 1.614 (1.47 to 1.77). With D_st read as the mean matter density over a fixed containing pressure the exact solution returns 1/33.2; the density and the containing pressure that enter D_st at the largest scale are to be derived from the mechanics of the containing scale. Excluded: a factor defined as 1.083 × 33.2; a time dependence of p_cont chosen to return 1.614; the standard account\'s cosmological components as inputs. Evaluated in Module 2 (the epoch card).'],
+    ['Problem 2 · The galactic transition without a₀','OPEN','b-open',
+     'Target: R_trans = 0.748 from a condition of the galactic recursion that does not use a₀; then a₀ = g_s(R_trans) against 1.38 × 10⁻¹⁰ m/s² (the SPARC median through β) and 1.2 × 10⁻¹⁰ (the standard account\'s value). a₀ moves from closure to derived, β from stated to derived. Excluded: a₀, β, the radial acceleration relation or rotation-curve data in fixing the condition. Evaluated in Modules 1, 2 and 12.'],
+    ['Problem 3 · The three segments of the n = 6 closure','STATED · PARTITION OPEN','b-open',
+     'Target: the closure count 16 = 2 × 4 × 2 as a derivation, with the charges 0, −1, +2/3, −1/3 of one hand and 3/8 returned over the five-member state and over all sixteen. Derive from the six-peak slip structure and the coherence limit that the n = 6 cycle\'s content divides into exactly three segments, each a stable fraction only in composition. Excluded: SU(3), SO(10) or any group as input; the quark charges as input. Evaluated in Module 17.'],
+    ['Problem 4 · The mode functions R_n(D_st)','OPEN','b-open',
+     'Target: tan θ_W from 0.7746 at D_GUT to 0.5484 at m_Z, a ratio of 0.708 across four decades of density; g(EW)/g(e) = 19.97. Derive the density dependence of the three mode functions from the field equations, deciding what the 6 in the self-consistency condition is; the modes share one power law and the separation is a slow factor on it. sin²θ_W(m_Z) then moves to derived and α_GUT from identified to derived. Excluded: the one-loop coefficients and partner set as inputs; an exponent chosen to return 0.708. Evaluated in Module 18, against Modules 6, 8 and 9.'],
+    ['Problem 5 · The slip cadence at the fluid scale','OPEN','b-open',
+     'Target: the re-closure radius of a tightening vortex core against the measured dissipation scale of a turbulent flow at stated ν and ε, and the Reynolds number at which slip first occurs in a stated geometry. Derive the torsion slope g at the fluid scale from the vortex\'s geometry and its containing field, the fluid\'s own coupling in place of 3α/2. The applied register\'s first timing follows, and the same route then applies to the cyclone, the pulsar and the graphene lattice. Excluded: a dimensional estimate from ν and ε alone; a coupling chosen to return the measured scale. Module 3 carries the form of g and t_coh at the electron; no module yet carries a fluid-scale g.'],
+    ['Problem 6 · The switching energy of a torsion-phase bit, at the lattice scale','FORM DERIVED · LATTICE SLOPE OPEN','b-open',
+     'Reposed in Version 6.5. The problem was posed as a fraction f of m_ec² on the c-bit paper\'s bound; the bound is withdrawn, because the measured flip of a single free electron\'s spin is 0.6 meV at 5.4 T and falls with the field, and paramagnetism randomises unlocked spins at room temperature: there is no free-electron floor. Target: the switching energy as 2ℏg at the slope and rate of the lattice that holds the bit, against the exchange energy per spin of a ferromagnet (0.01 to 1 eV; 90 meV at iron\'s Curie point), with the Zeeman flip μ_B·B as the free-electron limit a derivation must return; and g at the graphene scale against the identified 0.49 fs and 647 THz. Derive the torsion slope at the lattice scale, with the lattice\'s coupling Ī in place of 3α/2; the unit is already the rule\'s, a/v_F. Excluded: a slope read off a measured switching energy; a lattice g fitted to the identified interval; a free-electron floor in any form. Module 3 carries the electron\'s g and the unit, and prints 2ℏg at the electron\'s rate, 4.27 keV, as the gear-shift\'s release and not a switching energy; no module carries a lattice-scale g.'],
+    ['Problem 7 · The constants of the rotation-curve law','FORM DERIVED · CONSTANTS OPEN','b-open',
+     'Target: the shape of the radial acceleration relation over the SPARC sample with the residual scatter reported, and the rotation profile of any one galaxy from its baryonic profile alone. Derive the surplus amplitude and profile, C_I, I(R), ρ₀, α_w and q, from the coherence-collapse condition of the galactic recursion with the containing pressure identified as Problem 1 requires. Excluded: any constant fitted to SPARC or to a rotation curve; a profile assumed from halo models. Module 12 carries the law\'s scale β and the relation\'s form.'],
+    ['C.1 · The absolute calibration of D_GUT, and what waits on it','OPEN','b-open',
+     'D_GUT in physical units is the sector\'s one measurement, with three routes: a rotation-curve sample with its host\'s X-ray medium, D_GUT = ρ(r₀)c²/(0.439 p_cont); the solar-system route through the Shapiro delay; the cosmological route of Problem 1. On it wait the thresholds D_acc and D_crit, the minimum R₀, M_GUT by E = pr at R = 1, and the GR limit with its constants.'],
+    ['C.2 · The slip cadence beyond the electron','OPEN','b-open',
+     'The cadence t_coh = 2/g is derived at the electron scale and nowhere else; at the fluid scale it is Problem 5, and the timing of every macroscopic transition the applied register predicts in form — eyewall replacement, the pulse sub-structure, the graphene clock — waits on g at its own scale. The switching energy of a torsion-phase bit, at the lattice scale, is Problem 6. The recursion unit is identified, λ_C/c = 1.2881 × 10⁻²¹ s (Module 3; The Recursion Unit), so a slope derived at any scale becomes a time at once by the rule the identification instances, the coherence length over the propagation rate.'],
+    ['C.3 · The closure coefficients and the nuclear quantities','OPEN','b-open',
+     'The partition into three segments is Problem 3 and the mode functions are Problem 4. Beyond them: the fractional closure coefficients, the quark and hadron masses, the Yukawa hierarchy, the resonance radius of confinement, and the nuclear torsion intervals T_N and T_A behind E_b(A) ∝ A·T_N − T_A, whose iron peak, magic numbers and drip lines the series states in form.'],
+    ['C.4 · The rest','OPEN','b-open',
+     'The galactic transition without a₀ is Problem 2 and the rotation-curve constants are Problem 7. Beyond them: the explicit wave equation of the recursion field behind the Born rule; the connection-field kinetic term from E = pr; the electroweak anchor v from R(D_st); k_α in the dilation law; the reconciliation of the two readings of c; and the formal statements pending in Appendix B of the textbook.']];
+  var html='';
+  ops.forEach(function(o){html+='<div class="op"><span class="badge '+o[2]+'">'+o[1]+'</span><h4>'+o[0]+'</h4><p>'+o[3]+'</p></div>';});
+  h('op-list',html);
+}
+
+/* ================= 16. Reference ================= */
+function renderRef(){
+  var rows=[
+    ['θ_φ = 360/φ²',THETA_PHI.toFixed(6)+'°','golden angle — infinite-time attractor'],
+    ['κ₆ = 6/π²',KAPPA6.toFixed(6),'hexagonal curvature'],
+    ['κ₂ = 2/π²',(2/(Math.PI*Math.PI)).toFixed(6),'bipolar curvature; κ₆/κ₂ = 3'],
+    ['C = 3/2','1.500000','photon-electron coupling (derived)'],
+    ['1/α geometric','137.029','forward chain; +0.007 identified'],
+    ['g/ω','0.004117 rad','slip-time form (back-solved; forward open)'],
+    ['Φ_toggle = 32/(3π²−4)',PHI_TOG.toFixed(6),'binary toggle threshold'],
+    ['Perihelion coefficient','6 = 2 × 3','(nκ)_eff = 3 at Φ_toggle, two injections per orbit (derived); Mercury 42.98″/century against the measured 42.98″ (Module 19)'],
+    ['t_coh = 2/g; ν_r = g/2','478.75 units = 6.167×10⁻¹⁹ s; 0.002089 per unit = 1.622×10¹⁸ s⁻¹','the slip cadence and recursion rate at the electron scale (derived), in seconds through the identified unit (Module 3)'],
+    ['Recursion unit u_e = λ_C/c','1.2881×10⁻²¹ s','= ℏ/(m_ec²) = 1/ω_C; identified from the electron closure and the trapping condition (The Recursion Unit; Module 3)'],
+    ['2ℏg at the electron\'s rate','4.27 keV','= 2g·m_ec²: the gear-shift release of the free recursion (form derived); not the switching energy of a device (Module 3)'],
+    ['λ₃ = 3/(32π²α)','1.30','a fourth charged lepton would sit below closure: none (derived, Module 4)'],
+    ['Trapping ratio (1/2)/(g/ω)','120','the photon against the electron\'s trapping threshold g/ω_C = 1/2 (Module 4)'],
+    ['Proton closure','λ_C,p = 2.10309×10⁻¹⁶ m; pr = 938.272 MeV','E = pr with CODATA m_p, unit coefficient (closure, Module 13)'],
+    ['R_GUT = ℏc/M_GUT; v/M_GUT','≈ 10⁻³² m; 1.2×10⁻¹⁴','recursion lengths, dimensional (Module 9; R_EW in Module 7)'],
+    ['Epoch ratio','1/33.2 vs 1.083 measured','D_now/D_CMB = 1.614 required (1.47–1.77); identification open, Problem 1 (Module 2)'],
+    ['λ₁ = 3/(2α)','205.554','muon scaling (derived); anchor 206.768'],
+    ['λ₂ = 3/(8πα)','16.357','tau scaling (derived); anchor 16.817'],
+    ['sin²θ_W at D_GUT','3/8 = 0.375','SO(10) trace ratio (derived)'],
+    ['sin²θ_W at m_Z','0.2314 computed','standard relation with the measured couplings (observed 0.23122)'],
+    ['R_trans','0.748','MOND transition resistance'],
+    ['a₀ (closure)','1.379×10⁻¹⁰ m/s²','= cH₀R_t(1+2R_t⁴)/6; observed 1.380×10⁻¹⁰; R_trans fixed by a₀'],
+    ['D_trans/D_GUT','0.439','from a₀, c, H₀ alone (v6.1 correction; paper printed 16.79)'],
+    ['β','0.235 pc/(km/s)²','global suppression: form derived, value stated; β⁻¹ = 4.26 (km/s)²/pc = a₀'],
+    ['n (R(D_st) exponent)','1/6 exact','derived from the classical Lagrangian'],
+    ['M_GUT','≈ 2×10¹⁶ GeV','identified: standard-account running with the partner set; from R(D_st) alone open'],
+    ['α_GUT','≈ 1/25','identified; from the torsion slope at R = 1 open'],
+    ['τ_p','≈ 6×10³⁴ yr','identified prediction; p → e⁺π⁰; Hyper-K falsifiable'],
+    ['Closure count','16 = 2 × 4 × 2','poles × content × hands (Module 17); stated, partition open'],
+    ['Mode separation, D_GUT → EW','0.708','tanθ_W(m_Z)/tanθ_W(D_GUT) over four decades of density (Module 18)'],
+    ['g(EW)/g(e)','≈ 20','slip operator 9.56° at m_Z vs 0.4787° at the electron (Module 18)'],
+    ['λ (Higgs self-coupling)','0.1294','= m_H²/2v² — R(D_st) curvature ratio'],
+    ['G_F','1.1664×10⁻⁵ GeV⁻²','= √2/(2v²)'],
+    ['Causal order','T → Σ → τ → Slip → Accel → Maintained Motion','fixed by the geometry; never reverses']];
+  var tb='<table class="t"><tr><th>Quantity</th><th>Value</th><th>Origin</th></tr>';
+  rows.forEach(function(r){tb+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td style="font-family:Georgia,serif;font-size:0.88em">'+r[2]+'</td></tr>';});
+  h('ref-out',tb+'</table>');
+}
+
+/* ================= init ================= */
+function initAll(){
+  calcMond(); calcRdst(); calcFscForward(); calcFscCheck(); calcMass();
+  calcTog(); calcWein(); calcEw(); calcRun(); calcGut(); calcPdk();
+  calcNu(); calcRar(); calcEpr(); calcUnits(); calcCls(); calcTgt(); calcPer(); calcEpoch(); renderOps(); renderRef();
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initAll);}else{initAll();}
+</script>
+</body>
+</html>
